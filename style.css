@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Mozilla+Headline:wght@200..700&family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Istok+Web:ital,wght@0,400;0,700;1,400;1,700&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Mozilla+Headline:wght@200..700&family=Quicksand:wght@300..700&family=Winky+Rough:ital,wght@0,300..900;1,300..900&display=swap');
+
 
 *{
     margin: 0;
@@ -11,6 +12,7 @@ body{
     min-height: 100vh;
     margin: 0;
     padding: 0;
+    background-color: #fcfcfc;
 }
 
 .container{
@@ -214,4 +216,57 @@ body{
     width: 90%;
     height: auto;
     max-height: 280px;
+}
+
+.quick{
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #3333336b;
+    border-radius: 10px;
+}
+
+.quick .header{
+    width: 100%;
+    border-bottom: 1px solid #3333336b;
+    padding: 10px;
+}
+
+.quick .header h1{
+    font-size: 1.3em;
+    font-family: "Istok Web", sans-serif;
+    font-weight: 700px;
+}
+
+.quick .access{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 30px;
+}
+
+.quick .access .accesses{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #fff;
+    box-shadow: 2px 2px 10px #00000015;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.quick .access .accesses i{
+    font-size: 1em;
+    padding: 10px;
+    background-color: rgba(252, 119, 119, 0.651);
+    border-radius: 50%;
+}
+
+.quick .access .accesses h1{
+    font-size: 1em;
+    font-family: "quicksand", sans-serif;
+    font-weight: 600;
 }
