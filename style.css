@@ -100,7 +100,7 @@ body{
 
 .navbar nav .right i{
     font-size: 1.5em;
-    color: #000;
+    /* color: #000; */
     cursor: pointer;
 }
 
@@ -432,22 +432,26 @@ body{
 }
 
 @media (max-width: 650px) {
+    .navbar nav .right .links{
+        position: absolute;
+        background-color: #ffffff;
+        top: 75px;
+        right: 0;
+        width: 50%;
+        padding: 20px 0;
+        height: 92vh;
+        z-index: 99;
+        border-top-left-radius: 12px;
+        display: none;
+        /* color: #7ce1ff; */
+    }
+
     .navbar nav .right ul{
         display: flex;
         flex-direction: column;
         align-items: center;
         list-style: none;
         gap: 10px;
-        position: absolute;
-        background-color: #ffffff;
-        top: 65px;
-        right: 0;
-        width: 50%;
-        padding: 20px 0;
-        height: 93vh;
-        z-index: 99;
-        border-top-left-radius: 12px;
-        display: none;
     }
 
     .navbar nav .right i.fa-bars{
@@ -503,6 +507,7 @@ body{
 footer{
     width: 100%;
     background-color: rgb(73, 25, 204);
+    z-index: 1;
 }
 
 footer .foot{

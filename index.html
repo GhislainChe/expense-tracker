@@ -9,19 +9,19 @@
 </head>
 <body>
     <div class="container">
-        <div class="overlay"></div>
+        <div class="overlay" id="overlay"></div>
         <div class="navbar">
             <nav>
                 <h1 id="name">Hey Ghislain</h1>
-                <div class="right">
-                    <div class="links">
-                        <ul>
+                <div class="right" id="right">
+                    <div class="links" id="links">
+                        <ul id="lists">
                             <li class="active"><a href="index.html">Home</a></li>
                             <li><a href="activity.html">Activity</a></li>
                             <li><a href="#">Card</a></li>
                         </ul>
                     </div>
-                    <i class="fa-solid fa-bars"></i>
+                    <i class="fa-solid fa-bars" id="menu"></i>
                     <i class="fa-solid fa-bell"></i>
                     <i class="fa-solid fa-circle-user"></i>
                     
@@ -131,5 +131,32 @@
             <h1>&copy; 2025 Ghislain Expense Tracker . All Rights Reserved</h1>
         </div>
     </footer>
+
+    <script>
+        let overlay = document.getElementById('overlay')
+        let menu = document.getElementById('menu')
+        let lists = document.getElementById('lists')
+        let right = document.getElementById('right')
+        let links = document.getElementById('links')
+
+        menu.addEventListener('click', function(){
+            if(links.style.display == 'none'){
+                overlay.style.display = 'block'
+                links.style.display = 'block'
+                right.style.zIndex = '101'
+                right.style.color = '#7ce1ff'
+                menu.classList.remove('fa-bars')
+                menu.classList.add('fa-xmark')
+            }
+            else{
+                overlay.style.display = 'none'
+                links.style.display = 'none'
+                right.style.color = '#000'
+                menu.classList.remove('fa-xmark')
+                menu.classList.add('fa-bars')
+                right.style.zIndex = '1'
+            }
+        })
+    </script>
 </body>
 </html>
