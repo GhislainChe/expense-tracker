@@ -71,7 +71,12 @@ body{
     font-weight: 600;
     font-family: "Lato", sans-serif;
     cursor: pointer;
-    transition: background 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+.navbar nav .right ul li a{
+    text-decoration: none;
+    color: #000;
 }
 
 .navbar nav .right ul li i{
