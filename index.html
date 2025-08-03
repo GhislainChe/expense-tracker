@@ -38,7 +38,7 @@
                         <h1><span class="exp">Expense</span><span class="money">10,112.0</span></h1>
                         <h1><span class="exp">Balance</span><span class="money">6,517.0</span></h1>
                     </div>
-                    <button>Top Up</button>
+                    <button id="cardAdd">Top Up</button>
                 </div>
             </div>
             <div class="chart">
@@ -132,6 +132,9 @@
             <h1>&copy; 2025 Ghislain Expense Tracker . All Rights Reserved</h1>
         </div>
     </footer>
+    <div class="loading">
+        <div class="loader"></div>
+    </div>
 
     <script>
         let overlay = document.getElementById('overlay')
@@ -169,6 +172,11 @@
             menu.classList.remove('fa-xmark')
             menu.classList.add('fa-bars')
             right.style.zIndex = '1'
+        })
+
+        let cardAdd = document.getElementById('cardAdd')
+        cardAdd.addEventListener('click', function(){
+            overlay.style.display = 'block'
         })
     </script>
 </body>

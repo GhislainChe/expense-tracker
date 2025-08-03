@@ -20,6 +20,7 @@ body{
     position: absolute;
     height: 100%;
     width: 100%;
+    padding: 10px;
     top: 0;
     left: 0;
     background-color: rgba(49, 49, 49, 0.801);
@@ -432,6 +433,57 @@ body{
     font-family: "lato", sans-serif;
 }
 
+footer{
+    width: 100%;
+    background-color: rgb(73, 25, 204);
+    z-index: 1;
+}
+
+footer .foot{
+    width: 100%;
+    max-width: 1200px;
+    padding: 15px;
+    margin: 0 auto;
+}
+
+footer .foot h1{
+    font-size: clamp(12px, 2vw, 1em);
+    color: #fff;
+    font-family: "quicksand", sans-serif;
+    text-align: center;
+}
+
+.loading{
+    position: absolute;
+    inset: 0;
+    /* background-color: red; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+.loading .loader{
+    height: 50px;
+    width: 50px;
+    border: 5px solid rgb(0, 44, 241);
+    border-top: 5px solid #ffffff00;
+    border-radius: 50%;
+    animation-name: loader;
+    animation-duration: 0.7s;
+    animation-delay: 0s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes loader {
+    0%{
+        rotate: 0deg;
+    }
+    100%{
+        rotate: 360deg;
+    }
+}
+
 @media (max-width: 650px) {
     .navbar nav .right .links{
         position: absolute;
@@ -503,24 +555,4 @@ body{
         font-size: 12px;
     }
 
-}
-
-footer{
-    width: 100%;
-    background-color: rgb(73, 25, 204);
-    z-index: 1;
-}
-
-footer .foot{
-    width: 100%;
-    max-width: 1200px;
-    padding: 15px;
-    margin: 0 auto;
-}
-
-footer .foot h1{
-    font-size: clamp(12px, 2vw, 1em);
-    color: #fff;
-    font-family: "quicksand", sans-serif;
-    text-align: center;
 }
