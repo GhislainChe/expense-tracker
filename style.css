@@ -18,7 +18,7 @@ body{
 
 .overlay{
     position: absolute;
-    height: 100vh;
+    height: 100%;
     width: 100%;
     top: 0;
     left: 0;
@@ -437,20 +437,14 @@ body{
         position: absolute;
         background-color: #ffffff;
         top: 75px;
-        right: -100%;
+        right: 0;
         width: 65%;
         padding: 20px 0;
-        height: 93vh;
+        height: 92vh;
         z-index: 99;
         border-top-left-radius: 12px;
-        transition: all 0.3s ease-in-out;
         display: none;
         /* color: #7ce1ff; */
-    }
-
-    .navbar nav .right .links.active{
-        right: 0;
-        display: block;
     }
 
     .navbar nav .right ul{

@@ -145,7 +145,7 @@
             isOpen = !isOpen
             if(isOpen){
                 overlay.style.display = 'block'
-                links.classList.add('active')
+                links.style.display = 'block'
                 right.style.zIndex = '101'
                 right.style.color = '#7ce1ff'
                 menu.classList.remove('fa-bars')
@@ -153,7 +153,7 @@
             }
             else{
                 overlay.style.display = 'none'
-                links.classList.remove('active')
+                links.style.display = 'none'
                 right.style.color = '#000'
                 menu.classList.remove('fa-xmark')
                 menu.classList.add('fa-bars')
@@ -164,7 +164,7 @@
         overlay.addEventListener('click', () => {
             isOpen = false;
             overlay.style.display = 'none'
-            links.classList.remove('active')
+            links.style.display = 'none'
             right.style.color = '#000'
             menu.classList.remove('fa-xmark')
             menu.classList.add('fa-bars')
