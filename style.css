@@ -137,39 +137,6 @@ body{
     height: 2px;
 }
 
-@media (max-width: 550px) {
-    .navbar nav .right ul{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        list-style: none;
-        gap: 10px;
-        position: absolute;
-        background-color: #ffffff;
-        top: 65px;
-        right: 0;
-        width: 50%;
-        padding: 20px 0;
-        height: 93vh;
-        z-index: 99;
-        border-top-left-radius: 12px;
-        display: none;
-    }
-
-    .navbar nav .right i.fa-bars{
-        display: inline-block;
-    }
-
-    /* .navbar nav .right ul li a{
-        color: #fff;
-    } */
-
-    .navbar nav .right ul li{
-        font-size: 1.2em;
-    }
-
-}
-
 .top{
     width: 100%;
     padding: 40px 10px 40px 10px;
@@ -208,10 +175,11 @@ body{
     display: flex;
     flex-direction: column;
     justify-content: center;
+    gap: 5px;
 }
 
 .card .income .incomes{
-    font-size: .8em;
+    font-size: clamp(18px, 2vw, .8em);
     font-family: "Mozilla Headline", sans-serif;
     font-weight: 700;
     color: #fff;
@@ -219,7 +187,7 @@ body{
 }
 
 .card .income .span{
-    font-size: .5em;
+    font-size: clamp(13px, 2vw, .5em);
     font-family: "lato", sans-serif;
     opacity: 50%;
     color: #fff;
@@ -242,7 +210,7 @@ body{
 }
 
 .card .income-ex .exp{
-    font-size: .4em;
+    font-size: clamp(13px, 2vw, .4em);
     font-family: "lato", sans-serif;
     opacity: 70%;
     color: #fff;
@@ -251,7 +219,7 @@ body{
 }
 
 .card .income-ex .money{
-    font-size: .6em;
+    font-size: clamp(15px, 2vw, .6em);
     font-family: "lato", sans-serif;
     font-weight: 600;
     color: #fff;
@@ -279,7 +247,7 @@ body{
     border: none;
     outline: none;
     cursor: pointer;
-    font-size: 1em;
+    font-size: clamp(13px, 2vw, 1em);
     font-weight: 700;
     font-family: "Lato", sans-serif;
     transition: all 0.3s ease;
@@ -309,6 +277,51 @@ body{
     width: 70%;
     height: auto;
     max-height: 200px;
+}
+
+@media (max-width: 550px) {
+    .navbar nav .right ul{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        list-style: none;
+        gap: 10px;
+        position: absolute;
+        background-color: #ffffff;
+        top: 65px;
+        right: 0;
+        width: 50%;
+        padding: 20px 0;
+        height: 93vh;
+        z-index: 99;
+        border-top-left-radius: 12px;
+        display: none;
+    }
+
+    .navbar nav .right i.fa-bars{
+        display: inline-block;
+    }
+
+    .navbar nav .right ul li{
+        font-size: 1.2em;
+    }
+
+    .left{
+        width: 100%;
+    }
+
+    .card{
+        margin: 0 auto;
+    }
+
+    .card button{
+        padding: 12px 18px;
+    }
+
+    .chart{
+        display: none;
+    }
+
 }
 
 .quick{
