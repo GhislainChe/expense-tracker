@@ -54,22 +54,24 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 35px;
+    gap: 40px;
 }
 
 .navbar nav .right ul{
     display: flex;
     align-items: center;
     list-style: none;
-    gap: 25px;
+    gap: 30px;
 }
 
 .navbar nav .right ul li{
+    padding: 10px 6px;
+    position: relative;
     font-size: 1em;
     font-weight: 600;
     font-family: "Lato", sans-serif;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background 0.3s ease-in-out;
 }
 
 .navbar nav .right ul li i{
@@ -81,6 +83,35 @@ body{
     font-size: 1.5em;
     color: #000;
     cursor: pointer;
+}
+
+.navbar nav .right ul .active::after{
+    content: '';
+    background-color: rgb(0, 44, 241);
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+    height: 2px;
+}
+.navbar nav .right ul li::after{
+    content: '';
+    background-color: rgb(0, 44, 241);
+    width: 0%;
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+    height: 2px;
+    transition: all 0.3s ease-in-out;
+}
+.navbar nav .right ul li:hover::after{
+    content: '';
+    background-color: rgb(0, 44, 241);
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+    height: 2px;
 }
 
 .top{
