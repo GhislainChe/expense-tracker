@@ -85,7 +85,7 @@ body{
 
 .top{
     width: 100%;
-    padding: 40px 10px 20px 10px;
+    padding: 40px 10px 40px 10px;
     max-width: 1300px;
     margin: 0 auto;
     display: flex;
@@ -104,7 +104,7 @@ body{
 
 .card{
     position: relative;
-    max-width: 450px;
+    max-width: 400px;
     min-width: 300px;
     width: 100%;
     background-color: rgb(0, 44, 241);
@@ -113,7 +113,7 @@ body{
     outline: none;
     display: flex;
     flex-direction: column;
-    gap: 120px;
+    gap: 80px;
     padding: 15px;
 }
 
@@ -204,6 +204,7 @@ body{
     align-items: center;
     justify-content: center;
     padding: 10px;
+    /* margin-bottom: 40px; */
 }
 
 .chart h1{
@@ -213,9 +214,9 @@ body{
 }
 
 .chart img{
-    width: 90%;
+    width: 70%;
     height: auto;
-    max-height: 280px;
+    max-height: 200px;
 }
 
 .quick{
@@ -261,7 +262,7 @@ body{
 .quick .access .accesses i{
     font-size: 1em;
     padding: 10px;
-    background-color: rgba(252, 119, 119, 0.651);
+    background-color: rgba(25, 73, 231, 0.568);
     border-radius: 50%;
 }
 
@@ -269,4 +270,93 @@ body{
     font-size: 1em;
     font-family: "quicksand", sans-serif;
     font-weight: 600;
+}
+
+.transactions{
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+.transactions h1{
+    font-size: 1.5em;
+    font-family: "Istok web", sans-serif;
+    font-weight: 700px;
+}
+
+.all{
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+.all .all-line{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.all .all-line .info{
+    width: 100%;
+    background-color: rgba(77, 77, 243, 0.336);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.all .all-line .info .mouse{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.all .all-line .info .mouse i{
+    font-size: 1em;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+.all .all-line .info .mouse h1{
+    font-size: 1.1em;
+    font-family: "quicksand", sans-serif;
+}
+
+.all .all-line .info h2{
+    font-size: 1.3em;
+    font-weight: 900;
+    font-family: "quicksand", sans-serif;
+
+}
+
+.all .all-line .details{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 10px;
+    background-color: rgb(0, 44, 241);
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.all .all-line .details i{
+    padding: 10px;
+    font-size: 1em;
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+.all .all-line .details p{
+    font-size: 1em;
+    color: #fff;
+    font-family: "lato", sans-serif;
 }
