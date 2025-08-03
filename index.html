@@ -139,11 +139,13 @@
         let lists = document.getElementById('lists')
         let right = document.getElementById('right')
         let links = document.getElementById('links')
+        let isOpen = false
 
         menu.addEventListener('click', function(){
-            if(links.style.display == 'none'){
+            isOpen = !isOpen
+            if(isOpen){
                 overlay.style.display = 'block'
-                links.style.display = 'block'
+                links.classList.add('active')
                 right.style.zIndex = '101'
                 right.style.color = '#7ce1ff'
                 menu.classList.remove('fa-bars')
@@ -151,12 +153,22 @@
             }
             else{
                 overlay.style.display = 'none'
-                links.style.display = 'none'
+                links.classList.remove('active')
                 right.style.color = '#000'
                 menu.classList.remove('fa-xmark')
                 menu.classList.add('fa-bars')
                 right.style.zIndex = '1'
             }
+        })
+
+        overlay.addEventListener('click', () => {
+            isOpen = false;
+            overlay.style.display = 'none'
+            links.classList.remove('active')
+            right.style.color = '#000'
+            menu.classList.remove('fa-xmark')
+            menu.classList.add('fa-bars')
+            right.style.zIndex = '1'
         })
     </script>
 </body>
