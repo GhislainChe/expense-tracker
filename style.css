@@ -195,6 +195,11 @@ body{
     font-size: 1em;
     font-weight: 700;
     font-family: "Lato", sans-serif;
+    transition: all 0.3s ease;
+}
+
+.card button:hover{
+    transform: scale(1.05);
 }
 
 .chart{
@@ -257,6 +262,11 @@ body{
     padding: 10px 18px;
     border-radius: 8px;
     cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.quick .access .accesses:hover{
+    transform: scale(1.03);
 }
 
 .quick .access .accesses i{
@@ -332,7 +342,7 @@ body{
 }
 
 .all .all-line .info h2{
-    font-size: 1.3em;
+    font-size: 1.1em;
     font-weight: 900;
     font-family: "quicksand", sans-serif;
 
@@ -346,6 +356,11 @@ body{
     background-color: rgb(0, 44, 241);
     padding: 12px;
     border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.all .all-line .details:hover{
+    transform: scale(1.03);
 }
 
 .all .all-line .details i{
