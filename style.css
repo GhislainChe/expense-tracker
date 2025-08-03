@@ -16,6 +16,10 @@ body{
     position: relative;
 }
 
+html, body.overla{
+    overflow: hidden;
+}
+
 .overlay{
     position: absolute;
     height: 100%;
@@ -453,20 +457,29 @@ footer .foot h1{
     text-align: center;
 }
 
-.loading{
+.load{
     position: absolute;
     inset: 0;
     /* background-color: red; */
+    /* display: flex;
+    align-items: center;
+    justify-content: center; */
+    height: 100vh;
+    display: none;
+    z-index: 100;
+}
+
+.loading{
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    height: 100%;
 }
 
 .loading .loader{
     height: 50px;
     width: 50px;
-    border: 5px solid rgb(0, 44, 241);
+    border: 5px solid rgb(121, 206, 255);
     border-top: 5px solid #ffffff00;
     border-radius: 50%;
     animation-name: loader;

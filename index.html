@@ -132,9 +132,12 @@
             <h1>&copy; 2025 Ghislain Expense Tracker . All Rights Reserved</h1>
         </div>
     </footer>
-    <div class="loading">
-        <div class="loader"></div>
+    <div class="load" id="loading">
+        <div class="loading">
+            <div class="loader"></div>
+        </div>
     </div>
+    
 
     <script>
         let overlay = document.getElementById('overlay')
@@ -175,8 +178,23 @@
         })
 
         let cardAdd = document.getElementById('cardAdd')
-        cardAdd.addEventListener('click', function(){
+        let loader = document.getElementById('loading')
+
+        function overla(){
             overlay.style.display = 'block'
+            document.body.classList.add('overla')
+        };
+
+        function showLoader(){
+            loader.style.display = 'block'
+            setTimeout(() => {
+                loader.style.display = 'none'
+            }, 4000)
+        };
+
+        cardAdd.addEventListener('click', function(){
+            overla()
+            showLoader()
         })
     </script>
 </body>
