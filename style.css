@@ -71,7 +71,7 @@ body{
     font-weight: 600;
     font-family: "Lato", sans-serif;
     cursor: pointer;
-    transition: background 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
 }
 
 .navbar nav .right ul li a{
@@ -351,7 +351,7 @@ body{
 
 .all .all-line .info{
     width: 100%;
-    background-color: rgba(77, 77, 243, 0.336);
+    background-color: rgba(0, 0, 255, 0.068);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -389,7 +389,7 @@ body{
     align-items: center;
     cursor: pointer;
     gap: 10px;
-    background-color: rgb(0, 44, 241);
+    background-color: rgba(35, 68, 216, 0.938);
     padding: 12px;
     border-radius: 8px;
     transition: all 0.3s ease;
