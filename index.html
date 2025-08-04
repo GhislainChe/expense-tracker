@@ -140,6 +140,7 @@
     <div class="fill" id="fill">
         <div class="filling">
             <div class="deposit">
+                <i class="fa-solid fa-xmark" id="closeFill"></i>
                 <div class="fillImage">
                     
                 </div>
@@ -200,12 +201,18 @@
         let cardAdd = document.getElementById('cardAdd')
         let loader = document.getElementById('loading')
         let fill = document.getElementById('fill')
+        let closeFill = document.getElementById('closeFill')
 
         function overla(){
             overlay.style.display = 'block'
             // document.body.classList.add('overla')
             document.body.style.overflow = 'hidden'
         };
+
+        function xoverla(){
+            overlay.style.display = 'none'
+            document.body.style.overflow = 'visible'
+        }
 
         function showLoader(){
             loader.style.display = 'block'
@@ -220,11 +227,20 @@
             }, 5000)
         }
 
+        function xshowfill(){
+            fill.style.display = 'none'
+        }
+
         cardAdd.addEventListener('click', function(){
             overla()
             document.body.classList.remove('overla')
             showLoader()
             showfill()
+        })
+
+        closeFill.addEventListener('click', function(){
+            xoverla()
+            xshowfill()
         })
     </script>
 </body>

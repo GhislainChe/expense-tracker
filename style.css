@@ -514,6 +514,16 @@ footer .foot h1{
     /* padding: 10px; */
     border-radius: 12px;
     box-shadow: 2px 2px 10px #0000001f;
+    position: relative;
+}
+
+.filling .deposit i.fa-xmark{
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 .deposit .fillImage{
