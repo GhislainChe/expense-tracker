@@ -9,6 +9,7 @@
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
+    <p id="errorMsg"></p>
     <div class="container">
         <div class="overlay" id="overlay"></div>
         <div class="navbar">
@@ -33,10 +34,10 @@
             <div class="left">
                 <div class="card">
                     <p>GC card</p>
-                    <h1 class="income"><span class="incomes">FCFA 16,630.00</span> <span class="span">+13% income from last month</span></h1>
+                    <h1 class="income"><span class="incomes" id="totalIncome">00.0</span> <span class="span" id="percentIncome">0% income from last month</span></h1>
                     <div class="income-ex">
-                        <h1><span class="exp">Expense</span><span class="money">10,112.0</span></h1>
-                        <h1><span class="exp">Balance</span><span class="money">6,517.0</span></h1>
+                        <h1><span class="exp">Expense</span><span class="money" id="expenses">00.0</span></h1>
+                        <h1><span class="exp">Balance</span><span class="money" id="balance">00.0</span></h1>
                     </div>
                     <button id="cardAdd">Top Up</button>
                 </div>
@@ -144,16 +145,16 @@
                 <div class="fillImage">
                     
                 </div>
-                <form action="">
+                <form action="" id="form">
                     <h1>Deposit Into Your Card</h1>
                     <label for="name">Name <br>
-                        <input type="text" placeholder="Input your name" required>
+                        <input type="text" placeholder="Input your name" id="userName" required>
                     </label>
                     <label for="cardNumber"> Card Number <br>
-                        <input type="password" name="cardNumber" id="cardNumber" required>
+                        <input type="password" name="cardNumber" id="cardNumber" id="cardNumber" required>
                     </label>
                     <label for="Amount"> Amount <br>
-                        <input type="number" placeholder="Enter your Amount to deposit" class="green">
+                        <input type="number" placeholder="Enter your Amount to deposit" id="depositAmount" class="green">
                     </label>
                     <button type="submit">Proceed to Payment method <i class="fa-solid fa-arrow-right"></i></button>
                 </form>
@@ -198,10 +199,44 @@
             right.style.zIndex = '1'
         })
 
+        let message = document.getElementById('errorMsg')
         let cardAdd = document.getElementById('cardAdd')
         let loader = document.getElementById('loading')
         let fill = document.getElementById('fill')
         let closeFill = document.getElementById('closeFill')
+        let form = document.getElementById('form')
+        let userName = document.getElementById('userName').value
+        let cardNumber = document.getElementById('cardNumber').value
+        let tot = 0
+        
+        
+        function increment(){
+            const depo = document.getElementById('depositAmount').value   
+            let values = parseInt(depo)
+            console.log(depo)
+            
+            if(!isNaN(values) && values >= 1000){
+                tot += values
+                document.getElementById('totalIncome').textContent = `FCFA${tot}.00`
+                values.value = ''
+                console.log('succesful')
+                xoverla()
+                xshowfill()
+            }
+            else{
+                message.style.display = 'inline-block'
+                message.textContent = 'Please Enter a valid sum'
+                setTimeout(() =>{
+                    message.style.display = 'none'
+                }, 2000);
+                console.log('error')
+            }
+        }
+
+        form.addEventListener('submit', function(e){
+            e.preventDefault()
+            increment()
+        })
 
         function overla(){
             overlay.style.display = 'block'
@@ -233,7 +268,6 @@
 
         cardAdd.addEventListener('click', function(){
             overla()
-            document.body.classList.remove('overla')
             showLoader()
             showfill()
         })
