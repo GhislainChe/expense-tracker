@@ -659,4 +659,11 @@ footer .foot h1{
         font-size: 12px;
     }
 
+    .deposit .fillImage{
+        display: none;
+    }
+
+    .deposit form{
+        width: 100%;
+    }
 }
