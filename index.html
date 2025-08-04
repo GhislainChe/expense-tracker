@@ -137,8 +137,27 @@
             <div class="loader"></div>
         </div>
     </div>
-    
-
+    <div class="fill" id="fill">
+        <div class="filling">
+            <div class="deposit">
+                <div class="fillImage">
+                    
+                </div>
+                <form action="">
+                    <label for="name">Name <br>
+                        <input type="text" placeholder="Input your name" required>
+                    </label>
+                    <label for="cardNumber"> Card Number <br>
+                        <input type="password" name="cardNumber" id="cardNumber" required>
+                    </label>
+                    <label for="Amount"> Amount <br>
+                        <input type="number" placeholder="Enter your Amount to deposit" class="green">
+                    </label>
+                    <button type="submit">Proceed to Payment method <i class="fa-solid fa-arrow-right"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
     <script>
         let overlay = document.getElementById('overlay')
         let menu = document.getElementById('menu')
@@ -179,10 +198,12 @@
 
         let cardAdd = document.getElementById('cardAdd')
         let loader = document.getElementById('loading')
+        let fill = document.getElementById('fill')
 
         function overla(){
             overlay.style.display = 'block'
-            document.body.classList.add('overla')
+            // document.body.classList.add('overla')
+            document.body.style.overflow = 'hidden'
         };
 
         function showLoader(){
@@ -192,9 +213,17 @@
             }, 4000)
         };
 
+        function showfill(){
+            setTimeout(() => {
+                fill.style.display = 'block'
+            }, 5000)
+        }
+
         cardAdd.addEventListener('click', function(){
             overla()
+            document.body.classList.remove('overla')
             showLoader()
+            showfill()
         })
     </script>
 </body>
