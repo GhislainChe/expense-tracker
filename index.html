@@ -39,7 +39,7 @@
                         <h1><span class="exp">Expense</span><span class="money" id="expenses">00.0</span></h1>
                         <h1><span class="exp">Balance</span><span class="money" id="balance">00.0</span></h1>
                     </div>
-                    <button id="cardAdd">Top Up</button>
+                    <button id="cardAdd"><i class="fa-solid fa-plus"></i></button>
                 </div>
             </div>
             <div class="chart">
@@ -92,7 +92,7 @@
                             <i class="fa-solid fa-arrow-up-from-bracket"></i>
                             <h1>Withdraws</h1>
                         </div>
-                        <h2 id="withdraws">-3020.0</h2>
+                        <h2 id="withdraws">0.0</h2>
                     </div>
                     <div class="details">
                         <i class="fa-solid fa-circle-info"></i>
@@ -105,7 +105,7 @@
                             <i class="fa-solid fa-money-bill-transfer"></i>
                             <h1>Transfers</h1>
                         </div>
-                        <h2 id="transfers">-4080.0</h2>
+                        <h2 id="transfers">0.0</h2>
                     </div>
                     <div class="details">
                         <i class="fa-solid fa-circle-info"></i>
@@ -118,7 +118,7 @@
                             <i class="fa-solid fa-coins"></i>
                             <h1>Premium Fee</h1>
                         </div>
-                        <h2>-1000.0</h2>
+                        <h2>0.0</h2>
                     </div>
                     <div class="details">
                         <i class="fa-solid fa-circle-info"></i>
@@ -142,9 +142,6 @@
         <div class="filling">
             <div class="deposit">
                 <i class="fa-solid fa-xmark" id="closeFill"></i>
-                <div class="fillImage">
-                    
-                </div>
                 <form action="" id="form">
                     <h1>Deposit Into Your Card</h1>
                     <label for="name">Name <br>
@@ -165,16 +162,20 @@
         <div class="filling">
             <div class="deposit">
                 <i class="fa-solid fa-xmark" id="closeWithdraw"></i>
-                <div class="fillImage">
-                    
-                </div>
                 <form action="" id="withdrawForm">
                     <h1>Withdraw From Your Card</h1>
                     <label for="withdrawName">Name <br>
                         <input type="text" placeholder="Input your name" id="withdrawUserName" required>
                     </label>
-                    <label for="withdrawCardNumber"> Card Number <br>
-                        <input type="password" name="withdrawCardNumber" id="withdrawCardNumber" required>
+                    <label for="withdrawMethod"> Withdrawal Method <br>
+                        <select id="withdrawMethod" required>
+                            <option value="">Select withdrawal method</option>
+                            <option value="mobile-money">Mobile Money</option>
+                            <option value="orange-money">Orange Money</option>
+                        </select>
+                    </label>
+                    <label for="withdrawReason"> Reason for Withdrawal <br>
+                        <input type="text" placeholder="Enter reason for withdrawal" id="withdrawReason" required>
                     </label>
                     <label for="withdrawAmount"> Amount <br>
                         <input type="number" placeholder="Enter amount to withdraw" id="withdrawAmount" class="green">
@@ -188,9 +189,6 @@
         <div class="filling">
             <div class="deposit">
                 <i class="fa-solid fa-xmark" id="closeSend"></i>
-                <div class="fillImage">
-                    
-                </div>
                 <form action="" id="sendForm">
                     <h1>Send Money</h1>
                     <label for="senderName">Your Name <br>
@@ -201,6 +199,9 @@
                     </label>
                     <label for="recipientPhone"> Recipient Phone <br>
                         <input type="tel" placeholder="Recipient's phone number" id="recipientPhone" required>
+                    </label>
+                    <label for="sendReason"> Reason for Transfer <br>
+                        <input type="text" placeholder="Enter reason for transfer" id="sendReason" required>
                     </label>
                     <label for="sendAmount"> Amount <br>
                         <input type="number" placeholder="Enter amount to send" id="sendAmount" class="green">
@@ -214,9 +215,6 @@
         <div class="filling">
             <div class="deposit">
                 <i class="fa-solid fa-xmark" id="closeSchedule"></i>
-                <div class="fillImage">
-                    
-                </div>
                 <form action="" id="scheduleForm">
                     <h1>Schedule Transaction</h1>
                     <label for="scheduleType">Transaction Type <br>
@@ -226,8 +224,39 @@
                             <option value="send">Send Money</option>
                         </select>
                     </label>
+                    
+                    <!-- Withdraw fields (initially hidden) -->
+                    <div id="withdrawFields" style="display: none;">
+                        <label for="scheduleWithdrawMethod"> Withdrawal Method <br>
+                            <select id="scheduleWithdrawMethod">
+                                <option value="">Select withdrawal method</option>
+                                <option value="mobile-money">Mobile Money</option>
+                                <option value="orange-money">Orange Money</option>
+                            </select>
+                        </label>
+                        <label for="scheduleWithdrawName"> Name <br>
+                            <input type="text" placeholder="Input your name" id="scheduleWithdrawName">
+                        </label>
+                    </div>
+                    
+                    <!-- Send fields (initially hidden) -->
+                    <div id="sendFields" style="display: none;">
+                        <label for="scheduleSenderName">Your Name <br>
+                            <input type="text" placeholder="Input your name" id="scheduleSenderName">
+                        </label>
+                        <label for="scheduleRecipientName"> Recipient Name <br>
+                            <input type="text" placeholder="Recipient's name" id="scheduleRecipientName">
+                        </label>
+                        <label for="scheduleRecipientPhone"> Recipient Phone <br>
+                            <input type="tel" placeholder="Recipient's phone number" id="scheduleRecipientPhone">
+                        </label>
+                    </div>
+                    
                     <label for="scheduleAmount"> Amount <br>
                         <input type="number" placeholder="Enter amount" id="scheduleAmount" class="green" required>
+                    </label>
+                    <label for="scheduleReason"> Reason <br>
+                        <input type="text" placeholder="Enter reason for transaction" id="scheduleReason" required>
                     </label>
                     <label for="scheduleDate"> Date <br>
                         <input type="date" id="scheduleDate" required>
@@ -312,6 +341,42 @@
         let sendForm = document.getElementById('sendForm')
         let scheduleForm = document.getElementById('scheduleForm')
 
+        // Load data from localStorage on page load
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('expenseTrackerData')
+            if (savedData) {
+                const data = JSON.parse(savedData)
+                tot = data.tot || 0
+                withdrawTotal = data.withdrawTotal || 0
+                transferTotal = data.transferTotal || 0
+                scheduledTransactions = data.scheduledTransactions || []
+                
+                // Update UI with loaded data
+                updateUI()
+            }
+        }
+
+        // Save data to localStorage
+        function saveToLocalStorage() {
+            const data = {
+                tot: tot,
+                withdrawTotal: withdrawTotal,
+                transferTotal: transferTotal,
+                scheduledTransactions: scheduledTransactions
+            }
+            localStorage.setItem('expenseTrackerData', JSON.stringify(data))
+        }
+
+        // Update UI with current data
+        function updateUI() {
+            document.getElementById('totalIncome').textContent = `FCFA${tot}.00`
+            document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
+            document.getElementById('expenses').textContent = `FCFA${withdrawTotal + transferTotal}.00`
+            document.getElementById('topps').textContent = `+${tot}`
+            document.getElementById('withdraws').textContent = `-${withdrawTotal}.0`
+            document.getElementById('transfers').textContent = `-${transferTotal}.0`
+        }
+
         // Top Up functionality
         function increment(){
             const depo = document.getElementById('depositAmount').value   
@@ -319,10 +384,9 @@
             
             if(!isNaN(values) && values >= 1000){
                 tot += values
-                document.getElementById('totalIncome').textContent = `FCFA${tot}.00`
-                document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
-                document.getElementById('topps').textContent = `+${tot}`
                 document.getElementById('depositAmount').value = ''
+                updateUI()
+                saveToLocalStorage()
                 console.log('Top up successful')
                 xoverla()
                 xshowfill()
@@ -340,13 +404,17 @@
         // Withdraw functionality
         function withdraw(){
             const withdrawAmount = document.getElementById('withdrawAmount').value   
+            const withdrawMethod = document.getElementById('withdrawMethod').value
+            const withdrawReason = document.getElementById('withdrawReason').value
             let values = parseInt(withdrawAmount)
             
-            if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal)){
+            if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal) && withdrawMethod && withdrawReason){
                 withdrawTotal += values
-                document.getElementById('withdraws').textContent = `-${withdrawTotal}.0`
-                document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
                 document.getElementById('withdrawAmount').value = ''
+                document.getElementById('withdrawMethod').value = ''
+                document.getElementById('withdrawReason').value = ''
+                updateUI()
+                saveToLocalStorage()
                 console.log('Withdraw successful')
                 xoverla()
                 xshowWithdraw()
@@ -354,6 +422,13 @@
             else if(values > (tot - withdrawTotal - transferTotal)){
                 message.style.display = 'inline-block'
                 message.textContent = 'Insufficient balance for withdrawal'
+                setTimeout(() =>{
+                    message.style.display = 'none'
+                }, 2000);
+            }
+            else if(!withdrawMethod || !withdrawReason){
+                message.style.display = 'inline-block'
+                message.textContent = 'Please fill all fields'
                 setTimeout(() =>{
                     message.style.display = 'none'
                 }, 2000);
@@ -371,13 +446,15 @@
         // Send functionality
         function sendMoney(){
             const sendAmount = document.getElementById('sendAmount').value   
+            const sendReason = document.getElementById('sendReason').value
             let values = parseInt(sendAmount)
             
-            if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal)){
+            if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal) && sendReason){
                 transferTotal += values
-                document.getElementById('transfers').textContent = `-${transferTotal}.0`
-                document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
                 document.getElementById('sendAmount').value = ''
+                document.getElementById('sendReason').value = ''
+                updateUI()
+                saveToLocalStorage()
                 console.log('Send money successful')
                 xoverla()
                 xshowSend()
@@ -385,6 +462,13 @@
             else if(values > (tot - withdrawTotal - transferTotal)){
                 message.style.display = 'inline-block'
                 message.textContent = 'Insufficient balance for transfer'
+                setTimeout(() =>{
+                    message.style.display = 'none'
+                }, 2000);
+            }
+            else if(!sendReason){
+                message.style.display = 'inline-block'
+                message.textContent = 'Please fill all fields'
                 setTimeout(() =>{
                     message.style.display = 'none'
                 }, 2000);
@@ -405,8 +489,38 @@
             const scheduleAmount = document.getElementById('scheduleAmount').value
             const scheduleDate = document.getElementById('scheduleDate').value
             const scheduleTime = document.getElementById('scheduleTime').value
+            const scheduleReason = document.getElementById('scheduleReason').value
             
-            if(scheduleType && scheduleAmount && scheduleDate && scheduleTime){
+            // Get additional fields based on transaction type
+            let additionalData = {}
+            if(scheduleType === 'withdraw') {
+                const withdrawMethod = document.getElementById('scheduleWithdrawMethod').value
+                const withdrawName = document.getElementById('scheduleWithdrawName').value
+                if(!withdrawMethod || !withdrawName) {
+                    message.style.display = 'inline-block'
+                    message.textContent = 'Please fill all withdraw fields'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                    }, 2000);
+                    return
+                }
+                additionalData = { method: withdrawMethod, name: withdrawName }
+            } else if(scheduleType === 'send') {
+                const senderName = document.getElementById('scheduleSenderName').value
+                const recipientName = document.getElementById('scheduleRecipientName').value
+                const recipientPhone = document.getElementById('scheduleRecipientPhone').value
+                if(!senderName || !recipientName || !recipientPhone) {
+                    message.style.display = 'inline-block'
+                    message.textContent = 'Please fill all send fields'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                    }, 2000);
+                    return
+                }
+                additionalData = { senderName, recipientName, recipientPhone }
+            }
+            
+            if(scheduleType && scheduleAmount && scheduleDate && scheduleTime && scheduleReason){
                 let values = parseInt(scheduleAmount)
                 if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal)){
                     const scheduledDateTime = new Date(`${scheduleDate}T${scheduleTime}`)
@@ -417,6 +531,8 @@
                             type: scheduleType,
                             amount: values,
                             dateTime: scheduledDateTime,
+                            reason: scheduleReason,
+                            ...additionalData,
                             id: Date.now()
                         }
                         scheduledTransactions.push(transaction)
@@ -429,11 +545,23 @@
                             message.style.color = '#f00'
                         }, 3000);
                         
+                        // Clear all form fields
                         document.getElementById('scheduleAmount').value = ''
                         document.getElementById('scheduleDate').value = ''
                         document.getElementById('scheduleTime').value = ''
                         document.getElementById('scheduleType').value = ''
+                        document.getElementById('scheduleReason').value = ''
+                        document.getElementById('scheduleWithdrawMethod').value = ''
+                        document.getElementById('scheduleWithdrawName').value = ''
+                        document.getElementById('scheduleSenderName').value = ''
+                        document.getElementById('scheduleRecipientName').value = ''
+                        document.getElementById('scheduleRecipientPhone').value = ''
                         
+                        // Hide dynamic fields
+                        document.getElementById('withdrawFields').style.display = 'none'
+                        document.getElementById('sendFields').style.display = 'none'
+                        
+                        saveToLocalStorage()
                         console.log('Transaction scheduled successfully')
                         xoverla()
                         xshowSchedule()
@@ -469,34 +597,40 @@
         // Check scheduled transactions
         function checkScheduledTransactions(){
             const now = new Date()
+            let hasExecuted = false
+            
             scheduledTransactions = scheduledTransactions.filter(transaction => {
                 if(transaction.dateTime <= now){
                     // Execute the transaction
                     if(transaction.type === 'withdraw'){
                         withdrawTotal += transaction.amount
-                        document.getElementById('withdraws').textContent = `-${withdrawTotal}.0`
+                        hasExecuted = true
                     } else if(transaction.type === 'send'){
                         transferTotal += transaction.amount
-                        document.getElementById('transfers').textContent = `-${transferTotal}.0`
+                        hasExecuted = true
                     }
-                    document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
-                    
-                    message.style.display = 'inline-block'
-                    message.textContent = `Scheduled ${transaction.type} of ${transaction.amount} FCFA executed`
-                    message.style.color = '#00ff00'
-                    setTimeout(() =>{
-                        message.style.display = 'none'
-                        message.style.color = '#f00'
-                    }, 3000);
                     
                     return false // Remove from array
                 }
                 return true // Keep in array
             })
+            
+            if(hasExecuted) {
+                updateUI()
+                saveToLocalStorage()
+                
+                message.style.display = 'inline-block'
+                message.textContent = `Scheduled transaction executed successfully`
+                message.style.color = '#00ff00'
+                setTimeout(() =>{
+                    message.style.display = 'none'
+                    message.style.color = '#f00'
+                }, 3000);
+            }
         }
 
-        // Check scheduled transactions every minute
-        setInterval(checkScheduledTransactions, 60000)
+        // Check scheduled transactions every 10 seconds for better responsiveness
+        setInterval(checkScheduledTransactions, 10000)
 
         // Event listeners for forms
         form.addEventListener('submit', function(e){
@@ -517,6 +651,45 @@
         scheduleForm.addEventListener('submit', function(e){
             e.preventDefault()
             scheduleTransaction()
+        })
+
+        // Schedule type change event listener
+        document.getElementById('scheduleType').addEventListener('change', function() {
+            const scheduleType = this.value
+            const withdrawFields = document.getElementById('withdrawFields')
+            const sendFields = document.getElementById('sendFields')
+            
+            // Hide all dynamic fields first
+            withdrawFields.style.display = 'none'
+            sendFields.style.display = 'none'
+            
+            // Show appropriate fields based on selection
+            if(scheduleType === 'withdraw') {
+                withdrawFields.style.display = 'block'
+                // Make withdraw fields required
+                document.getElementById('scheduleWithdrawMethod').required = true
+                document.getElementById('scheduleWithdrawName').required = true
+                // Make send fields not required
+                document.getElementById('scheduleSenderName').required = false
+                document.getElementById('scheduleRecipientName').required = false
+                document.getElementById('scheduleRecipientPhone').required = false
+            } else if(scheduleType === 'send') {
+                sendFields.style.display = 'block'
+                // Make send fields required
+                document.getElementById('scheduleSenderName').required = true
+                document.getElementById('scheduleRecipientName').required = true
+                document.getElementById('scheduleRecipientPhone').required = true
+                // Make withdraw fields not required
+                document.getElementById('scheduleWithdrawMethod').required = false
+                document.getElementById('scheduleWithdrawName').required = false
+            } else {
+                // No selection, make all fields not required
+                document.getElementById('scheduleWithdrawMethod').required = false
+                document.getElementById('scheduleWithdrawName').required = false
+                document.getElementById('scheduleSenderName').required = false
+                document.getElementById('scheduleRecipientName').required = false
+                document.getElementById('scheduleRecipientPhone').required = false
+            }
         })
 
         // Quick action button event listeners
@@ -629,6 +802,9 @@
         function xshowSchedule(){
             scheduleFill.style.display = 'none'
         }
+
+        // Load data when page loads
+        loadFromLocalStorage()
     </script>
 </body>
 </html>

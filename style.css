@@ -244,7 +244,7 @@ body{
 }
 
 .card .income-ex .money{
-    font-size: clamp(15px, 2vw, .6em);
+    font-size: clamp(10px, 1.5vw, 0.4em);
     font-family: "lato", sans-serif;
     font-weight: 600;
     color: #fff;
@@ -265,7 +265,7 @@ body{
     position: absolute;
     bottom: 12px;
     right: 20px;
-    padding: 12px 20px;
+    padding: 8px 12px;
     background-color: rgb(6, 143, 6);
     color: #fff;
     border-radius: 10px;
@@ -276,6 +276,10 @@ body{
     font-weight: 700;
     font-family: "Lato", sans-serif;
     transition: all 0.3s ease;
+}
+
+.card button i{
+    font-size: 0.8em;
 }
 
 .card button:hover{
@@ -508,32 +512,34 @@ footer .foot h1{
 }
 
 .fill{
-    position: absolute;
+    position: fixed;
     inset: 0;
     height: 100vh;
     display: none;
     z-index: 100;
+    overflow-y: auto;
 }
 
 .filling{
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    padding: 10px;
+    min-height: 100vh;
+    padding: 20px 10px;
+    box-sizing: border-box;
 }
 
 .filling .deposit{
     display: flex;
-    /* align-items: center; */
     justify-content: center;
     width: 100%;
-    max-width: 600px;
+    max-width: 500px;
+    max-height: 90vh;
     background-color: #fff;
-    /* padding: 10px; */
     border-radius: 12px;
     box-shadow: 2px 2px 10px #0000001f;
     position: relative;
+    overflow-y: auto;
 }
 
 .filling .deposit i.fa-xmark{
@@ -557,20 +563,21 @@ footer .foot h1{
 }
 
 .deposit form{
-    width: 50%;
-    /* background-color: red; */
+    width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 15px;
+    gap: 15px;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .deposit form h1{
     color: rgb(0, 44, 241);
     font-family: "quicksand", sans-serif;
-    font-size: 1.1em;
+    font-size: 1.2em;
     text-align: center;
-    padding: 10px;
+    padding: 10px 0;
+    margin: 0;
 }
 
 .deposit form label{
@@ -707,11 +714,18 @@ footer .foot h1{
         font-size: 12px;
     }
 
-    .deposit .fillImage{
-        display: none;
-    }
-
     .deposit form{
         width: 100%;
+        padding: 15px;
+        gap: 12px;
+    }
+
+    .filling .deposit{
+        max-width: 95%;
+        max-height: 85vh;
+    }
+
+    .filling{
+        padding: 10px 5px;
     }
 }
