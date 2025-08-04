@@ -589,6 +589,17 @@ footer .foot h1{
     font-family: "lato", sans-serif;
 }
 
+.deposit form label select{
+    padding: 8px;
+    width: 95%;
+    margin: 5px;
+    border: 1px solid rgb(0, 44, 241);
+    border-radius: 5px;
+    outline: none;
+    font-family: "lato", sans-serif;
+    background-color: white;
+}
+
 .deposit form label input.green{
     border: 2px solid green;
     margin-bottom: 20px;

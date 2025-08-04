@@ -52,19 +52,19 @@
                 <h1>Quick access</h1>
             </div>
             <div class="access">
-                <div class="accesses">
+                <div class="accesses" id="topUpQuick">
                     <i class="fa-solid fa-money-bill-trend-up"></i>
                     <h1>Top Up</h1>
                 </div>
-                <div class="accesses">
+                <div class="accesses" id="withdrawQuick">
                     <i class="fa-solid fa-arrow-up-from-bracket"></i>
                     <h1>Withdraw</h1>
                 </div>
-                <div class="accesses">
+                <div class="accesses" id="sendQuick">
                     <i class="fa-solid fa-money-bill-transfer"></i>
                     <h1>Send</h1>
                 </div>
-                <div class="accesses">
+                <div class="accesses" id="scheduleQuick">
                     <i class="fa-solid fa-calendar-plus"></i>
                     <h1>Schedule</h1>
                 </div>
@@ -79,7 +79,7 @@
                             <i class="fa-solid fa-money-bill-trend-up"></i>
                             <h1>Top Ups</h1>
                         </div>
-                        <h2>+10,000.0</h2>
+                        <h2 id="topps">0.0</h2>
                     </div>
                     <div class="details">
                         <i class="fa-solid fa-circle-info"></i>
@@ -92,7 +92,7 @@
                             <i class="fa-solid fa-arrow-up-from-bracket"></i>
                             <h1>Withdraws</h1>
                         </div>
-                        <h2>-3020.0</h2>
+                        <h2 id="withdraws">-3020.0</h2>
                     </div>
                     <div class="details">
                         <i class="fa-solid fa-circle-info"></i>
@@ -105,7 +105,7 @@
                             <i class="fa-solid fa-money-bill-transfer"></i>
                             <h1>Transfers</h1>
                         </div>
-                        <h2>-4080.0</h2>
+                        <h2 id="transfers">-4080.0</h2>
                     </div>
                     <div class="details">
                         <i class="fa-solid fa-circle-info"></i>
@@ -161,6 +161,85 @@
             </div>
         </div>
     </div>
+    <div class="fill" id="withdrawFill">
+        <div class="filling">
+            <div class="deposit">
+                <i class="fa-solid fa-xmark" id="closeWithdraw"></i>
+                <div class="fillImage">
+                    
+                </div>
+                <form action="" id="withdrawForm">
+                    <h1>Withdraw From Your Card</h1>
+                    <label for="withdrawName">Name <br>
+                        <input type="text" placeholder="Input your name" id="withdrawUserName" required>
+                    </label>
+                    <label for="withdrawCardNumber"> Card Number <br>
+                        <input type="password" name="withdrawCardNumber" id="withdrawCardNumber" required>
+                    </label>
+                    <label for="withdrawAmount"> Amount <br>
+                        <input type="number" placeholder="Enter amount to withdraw" id="withdrawAmount" class="green">
+                    </label>
+                    <button type="submit">Proceed to Withdrawal <i class="fa-solid fa-arrow-right"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="fill" id="sendFill">
+        <div class="filling">
+            <div class="deposit">
+                <i class="fa-solid fa-xmark" id="closeSend"></i>
+                <div class="fillImage">
+                    
+                </div>
+                <form action="" id="sendForm">
+                    <h1>Send Money</h1>
+                    <label for="senderName">Your Name <br>
+                        <input type="text" placeholder="Input your name" id="senderName" required>
+                    </label>
+                    <label for="recipientName"> Recipient Name <br>
+                        <input type="text" placeholder="Recipient's name" id="recipientName" required>
+                    </label>
+                    <label for="recipientPhone"> Recipient Phone <br>
+                        <input type="tel" placeholder="Recipient's phone number" id="recipientPhone" required>
+                    </label>
+                    <label for="sendAmount"> Amount <br>
+                        <input type="number" placeholder="Enter amount to send" id="sendAmount" class="green">
+                    </label>
+                    <button type="submit">Send Money <i class="fa-solid fa-arrow-right"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="fill" id="scheduleFill">
+        <div class="filling">
+            <div class="deposit">
+                <i class="fa-solid fa-xmark" id="closeSchedule"></i>
+                <div class="fillImage">
+                    
+                </div>
+                <form action="" id="scheduleForm">
+                    <h1>Schedule Transaction</h1>
+                    <label for="scheduleType">Transaction Type <br>
+                        <select id="scheduleType" required>
+                            <option value="">Select transaction type</option>
+                            <option value="withdraw">Withdraw</option>
+                            <option value="send">Send Money</option>
+                        </select>
+                    </label>
+                    <label for="scheduleAmount"> Amount <br>
+                        <input type="number" placeholder="Enter amount" id="scheduleAmount" class="green" required>
+                    </label>
+                    <label for="scheduleDate"> Date <br>
+                        <input type="date" id="scheduleDate" required>
+                    </label>
+                    <label for="scheduleTime"> Time <br>
+                        <input type="time" id="scheduleTime" required>
+                    </label>
+                    <button type="submit">Schedule Transaction <i class="fa-solid fa-arrow-right"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
     <script>
         let overlay = document.getElementById('overlay')
         let menu = document.getElementById('menu')
@@ -169,6 +248,7 @@
         let links = document.getElementById('links')
         let isOpen = false
 
+        // Mobile menu functionality
         menu.addEventListener('click', function(){
             isOpen = !isOpen
             if(isOpen){
@@ -199,50 +279,304 @@
             right.style.zIndex = '1'
         })
 
+        // Global variables
         let message = document.getElementById('errorMsg')
         let cardAdd = document.getElementById('cardAdd')
         let loader = document.getElementById('loading')
-        let fill = document.getElementById('fill')
-        let closeFill = document.getElementById('closeFill')
-        let form = document.getElementById('form')
-        let userName = document.getElementById('userName').value
-        let cardNumber = document.getElementById('cardNumber').value
         let tot = 0
-        
-        
+        let withdrawTotal = 0
+        let transferTotal = 0
+        let scheduledTransactions = []
+
+        // Quick action buttons
+        let topUpQuick = document.getElementById('topUpQuick')
+        let withdrawQuick = document.getElementById('withdrawQuick')
+        let sendQuick = document.getElementById('sendQuick')
+        let scheduleQuick = document.getElementById('scheduleQuick')
+
+        // Modal elements
+        let fill = document.getElementById('fill')
+        let withdrawFill = document.getElementById('withdrawFill')
+        let sendFill = document.getElementById('sendFill')
+        let scheduleFill = document.getElementById('scheduleFill')
+
+        // Close buttons
+        let closeFill = document.getElementById('closeFill')
+        let closeWithdraw = document.getElementById('closeWithdraw')
+        let closeSend = document.getElementById('closeSend')
+        let closeSchedule = document.getElementById('closeSchedule')
+
+        // Forms
+        let form = document.getElementById('form')
+        let withdrawForm = document.getElementById('withdrawForm')
+        let sendForm = document.getElementById('sendForm')
+        let scheduleForm = document.getElementById('scheduleForm')
+
+        // Top Up functionality
         function increment(){
             const depo = document.getElementById('depositAmount').value   
             let values = parseInt(depo)
-            console.log(depo)
             
             if(!isNaN(values) && values >= 1000){
                 tot += values
                 document.getElementById('totalIncome').textContent = `FCFA${tot}.00`
-                values.value = ''
-                console.log('succesful')
+                document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
+                document.getElementById('topps').textContent = `+${tot}`
+                document.getElementById('depositAmount').value = ''
+                console.log('Top up successful')
                 xoverla()
                 xshowfill()
             }
             else{
                 message.style.display = 'inline-block'
-                message.textContent = 'Please Enter a valid sum'
+                message.textContent = 'Please Enter a valid sum (minimum 1000 FCFA)'
                 setTimeout(() =>{
                     message.style.display = 'none'
                 }, 2000);
-                console.log('error')
+                console.log('Top up error')
             }
         }
 
+        // Withdraw functionality
+        function withdraw(){
+            const withdrawAmount = document.getElementById('withdrawAmount').value   
+            let values = parseInt(withdrawAmount)
+            
+            if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal)){
+                withdrawTotal += values
+                document.getElementById('withdraws').textContent = `-${withdrawTotal}.0`
+                document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
+                document.getElementById('withdrawAmount').value = ''
+                console.log('Withdraw successful')
+                xoverla()
+                xshowWithdraw()
+            }
+            else if(values > (tot - withdrawTotal - transferTotal)){
+                message.style.display = 'inline-block'
+                message.textContent = 'Insufficient balance for withdrawal'
+                setTimeout(() =>{
+                    message.style.display = 'none'
+                }, 2000);
+            }
+            else{
+                message.style.display = 'inline-block'
+                message.textContent = 'Please Enter a valid sum (minimum 1000 FCFA)'
+                setTimeout(() =>{
+                    message.style.display = 'none'
+                }, 2000);
+                console.log('Withdraw error')
+            }
+        }
+
+        // Send functionality
+        function sendMoney(){
+            const sendAmount = document.getElementById('sendAmount').value   
+            let values = parseInt(sendAmount)
+            
+            if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal)){
+                transferTotal += values
+                document.getElementById('transfers').textContent = `-${transferTotal}.0`
+                document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
+                document.getElementById('sendAmount').value = ''
+                console.log('Send money successful')
+                xoverla()
+                xshowSend()
+            }
+            else if(values > (tot - withdrawTotal - transferTotal)){
+                message.style.display = 'inline-block'
+                message.textContent = 'Insufficient balance for transfer'
+                setTimeout(() =>{
+                    message.style.display = 'none'
+                }, 2000);
+            }
+            else{
+                message.style.display = 'inline-block'
+                message.textContent = 'Please Enter a valid sum (minimum 1000 FCFA)'
+                setTimeout(() =>{
+                    message.style.display = 'none'
+                }, 2000);
+                console.log('Send money error')
+            }
+        }
+
+        // Schedule functionality
+        function scheduleTransaction(){
+            const scheduleType = document.getElementById('scheduleType').value
+            const scheduleAmount = document.getElementById('scheduleAmount').value
+            const scheduleDate = document.getElementById('scheduleDate').value
+            const scheduleTime = document.getElementById('scheduleTime').value
+            
+            if(scheduleType && scheduleAmount && scheduleDate && scheduleTime){
+                let values = parseInt(scheduleAmount)
+                if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal)){
+                    const scheduledDateTime = new Date(`${scheduleDate}T${scheduleTime}`)
+                    const now = new Date()
+                    
+                    if(scheduledDateTime > now){
+                        const transaction = {
+                            type: scheduleType,
+                            amount: values,
+                            dateTime: scheduledDateTime,
+                            id: Date.now()
+                        }
+                        scheduledTransactions.push(transaction)
+                        
+                        message.style.display = 'inline-block'
+                        message.textContent = `Transaction scheduled for ${scheduleDate} at ${scheduleTime}`
+                        message.style.color = '#00ff00'
+                        setTimeout(() =>{
+                            message.style.display = 'none'
+                            message.style.color = '#f00'
+                        }, 3000);
+                        
+                        document.getElementById('scheduleAmount').value = ''
+                        document.getElementById('scheduleDate').value = ''
+                        document.getElementById('scheduleTime').value = ''
+                        document.getElementById('scheduleType').value = ''
+                        
+                        console.log('Transaction scheduled successfully')
+                        xoverla()
+                        xshowSchedule()
+                    } else {
+                        message.style.display = 'inline-block'
+                        message.textContent = 'Please select a future date and time'
+                        setTimeout(() =>{
+                            message.style.display = 'none'
+                        }, 2000);
+                    }
+                } else if(values > (tot - withdrawTotal - transferTotal)){
+                    message.style.display = 'inline-block'
+                    message.textContent = 'Insufficient balance for scheduled transaction'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                    }, 2000);
+                } else {
+                    message.style.display = 'inline-block'
+                    message.textContent = 'Please Enter a valid sum (minimum 1000 FCFA)'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                    }, 2000);
+                }
+            } else {
+                message.style.display = 'inline-block'
+                message.textContent = 'Please fill all fields'
+                setTimeout(() =>{
+                    message.style.display = 'none'
+                }, 2000);
+            }
+        }
+
+        // Check scheduled transactions
+        function checkScheduledTransactions(){
+            const now = new Date()
+            scheduledTransactions = scheduledTransactions.filter(transaction => {
+                if(transaction.dateTime <= now){
+                    // Execute the transaction
+                    if(transaction.type === 'withdraw'){
+                        withdrawTotal += transaction.amount
+                        document.getElementById('withdraws').textContent = `-${withdrawTotal}.0`
+                    } else if(transaction.type === 'send'){
+                        transferTotal += transaction.amount
+                        document.getElementById('transfers').textContent = `-${transferTotal}.0`
+                    }
+                    document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
+                    
+                    message.style.display = 'inline-block'
+                    message.textContent = `Scheduled ${transaction.type} of ${transaction.amount} FCFA executed`
+                    message.style.color = '#00ff00'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                        message.style.color = '#f00'
+                    }, 3000);
+                    
+                    return false // Remove from array
+                }
+                return true // Keep in array
+            })
+        }
+
+        // Check scheduled transactions every minute
+        setInterval(checkScheduledTransactions, 60000)
+
+        // Event listeners for forms
         form.addEventListener('submit', function(e){
             e.preventDefault()
             increment()
         })
 
+        withdrawForm.addEventListener('submit', function(e){
+            e.preventDefault()
+            withdraw()
+        })
+
+        sendForm.addEventListener('submit', function(e){
+            e.preventDefault()
+            sendMoney()
+        })
+
+        scheduleForm.addEventListener('submit', function(e){
+            e.preventDefault()
+            scheduleTransaction()
+        })
+
+        // Quick action button event listeners
+        topUpQuick.addEventListener('click', function(){
+            overla()
+            showLoader()
+            showfill()
+        })
+
+        withdrawQuick.addEventListener('click', function(){
+            overla()
+            showLoader()
+            showWithdraw()
+        })
+
+        sendQuick.addEventListener('click', function(){
+            overla()
+            showLoader()
+            showSend()
+        })
+
+        scheduleQuick.addEventListener('click', function(){
+            overla()
+            showLoader()
+            showSchedule()
+        })
+
+        // Card add button
+        cardAdd.addEventListener('click', function(){
+            overla()
+            showLoader()
+            showfill()
+        })
+
+        // Close button event listeners
+        closeFill.addEventListener('click', function(){
+            xoverla()
+            xshowfill()
+        })
+
+        closeWithdraw.addEventListener('click', function(){
+            xoverla()
+            xshowWithdraw()
+        })
+
+        closeSend.addEventListener('click', function(){
+            xoverla()
+            xshowSend()
+        })
+
+        closeSchedule.addEventListener('click', function(){
+            xoverla()
+            xshowSchedule()
+        })
+
+        // Modal functions
         function overla(){
             overlay.style.display = 'block'
-            // document.body.classList.add('overla')
             document.body.style.overflow = 'hidden'
-        };
+        }
 
         function xoverla(){
             overlay.style.display = 'none'
@@ -254,7 +588,7 @@
             setTimeout(() => {
                 loader.style.display = 'none'
             }, 4000)
-        };
+        }
 
         function showfill(){
             setTimeout(() => {
@@ -266,16 +600,35 @@
             fill.style.display = 'none'
         }
 
-        cardAdd.addEventListener('click', function(){
-            overla()
-            showLoader()
-            showfill()
-        })
+        function showWithdraw(){
+            setTimeout(() => {
+                withdrawFill.style.display = 'block'
+            }, 5000)
+        }
 
-        closeFill.addEventListener('click', function(){
-            xoverla()
-            xshowfill()
-        })
+        function xshowWithdraw(){
+            withdrawFill.style.display = 'none'
+        }
+
+        function showSend(){
+            setTimeout(() => {
+                sendFill.style.display = 'block'
+            }, 5000)
+        }
+
+        function xshowSend(){
+            sendFill.style.display = 'none'
+        }
+
+        function showSchedule(){
+            setTimeout(() => {
+                scheduleFill.style.display = 'block'
+            }, 5000)
+        }
+
+        function xshowSchedule(){
+            scheduleFill.style.display = 'none'
+        }
     </script>
 </body>
 </html>
