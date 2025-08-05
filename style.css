@@ -695,6 +695,62 @@ footer .foot h1{
     font-weight: 600;
 }
 
+/* User Dropdown Menu */
+.user-dropdown {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 10px 0;
+    min-width: 200px;
+    border: 1px solid #e1e5e9;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    font-size: 0.9em;
+    font-family: "Lato", sans-serif;
+    color: #333;
+    transition: background-color 0.3s ease;
+}
+
+.menu-item.clickable {
+    cursor: pointer;
+}
+
+.menu-item.clickable:hover {
+    background-color: #f8f9fa;
+}
+
+.menu-item:first-child {
+    border-bottom: 1px solid #e1e5e9;
+    font-weight: 600;
+    color: #667eea;
+}
+
+.menu-item:nth-child(2) {
+    border-bottom: 1px solid #e1e5e9;
+    font-size: 0.8em;
+    color: #666;
+}
+
+.menu-item:last-child {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.menu-item i {
+    width: 16px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.menu-item span {
+    flex: 1;
+}
+
 
 @keyframes loader {
     0%{

@@ -25,7 +25,7 @@
                     </div>
                     <i class="fa-solid fa-bars" id="menu"></i>
                     <i class="fa-solid fa-bell"></i>
-                    <i class="fa-solid fa-circle-user"></i>
+                    <i class="fa-solid fa-circle-user" id="userMenu"></i>
                     
                 </div>
             </nav>
@@ -322,779 +322,873 @@
         </div>
     </div>
     <script>
-        let overlay = document.getElementById('overlay')
-        let menu = document.getElementById('menu')
-        let lists = document.getElementById('lists')
-        let right = document.getElementById('right')
-        let links = document.getElementById('links')
-        let isOpen = false
-
-        // Mobile menu functionality
-        menu.addEventListener('click', function(){
-            isOpen = !isOpen
-            if(isOpen){
-                overlay.style.display = 'block'
-                links.style.display = 'block'
-                right.style.zIndex = '101'
-                right.style.color = '#7ce1ff'
-                menu.classList.remove('fa-bars')
-                menu.classList.add('fa-xmark')
+        document.addEventListener('DOMContentLoaded', function() {
+            // Authentication check
+            function checkAuth() {
+                const isLoggedIn = localStorage.getItem('userLoggedIn');
+                if (!isLoggedIn) {
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                return true;
             }
-            else{
+
+            // Check authentication on page load
+            if (!checkAuth()) {
+                // Redirect will happen in checkAuth function
+                return;
+            }
+
+            // Update user name from stored data
+            function updateUserName() {
+                const userData = localStorage.getItem('userData');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    const nameElement = document.getElementById('name');
+                    nameElement.textContent = `Hey ${user.firstName}`;
+                }
+            }
+
+            // User menu functionality
+            function createUserMenu() {
+                const userMenu = document.getElementById('userMenu');
+                userMenu.addEventListener('click', function() {
+                    const userData = localStorage.getItem('userData');
+                    const user = userData ? JSON.parse(userData) : null;
+                    
+                    const menuItems = [
+                        { text: user ? `${user.firstName} ${user.lastName}` : 'User', icon: 'fa-user', action: null },
+                        { text: user ? user.email : 'user@example.com', icon: 'fa-envelope', action: null },
+                        { text: 'Settings', icon: 'fa-cog', action: () => alert('Settings coming soon!') },
+                        { text: 'Help', icon: 'fa-question-circle', action: () => alert('Help coming soon!') },
+                        { text: 'Logout', icon: 'fa-sign-out-alt', action: logout }
+                    ];
+                    
+                    showUserMenu(menuItems);
+                });
+            }
+
+            function showUserMenu(items) {
+                // Remove existing menu
+                const existingMenu = document.querySelector('.user-dropdown');
+                if (existingMenu) {
+                    existingMenu.remove();
+                }
+                
+                // Create menu
+                const menu = document.createElement('div');
+                menu.className = 'user-dropdown';
+                menu.innerHTML = items.map(item => `
+                    <div class="menu-item ${item.action ? 'clickable' : ''}" ${item.action ? `onclick=\"${item.action.name}()\"` : ''}>
+                        <i class="fa-solid ${item.icon}"></i>
+                        <span>${item.text}</span>
+                    </div>
+                `).join('');
+                
+                // Position menu
+                const userMenu = document.getElementById('userMenu');
+                const rect = userMenu.getBoundingClientRect();
+                menu.style.position = 'absolute';
+                menu.style.top = `${rect.bottom + 10}px`;
+                menu.style.right = '20px';
+                menu.style.zIndex = '1000';
+                
+                document.body.appendChild(menu);
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', function closeMenu(e) {
+                    if (!menu.contains(e.target) && e.target !== userMenu) {
+                        menu.remove();
+                        document.removeEventListener('click', closeMenu);
+                    }
+                });
+            }
+
+            function logout() {
+                localStorage.removeItem('userLoggedIn');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('rememberMe');
+                // Note: We keep userData for demo purposes
+                window.location.href = 'login.html';
+            }
+
+            // Initialize user functionality
+            updateUserName();
+            createUserMenu();
+
+            let overlay = document.getElementById('overlay')
+            let menu = document.getElementById('menu')
+            let lists = document.getElementById('lists')
+            let right = document.getElementById('right')
+            let links = document.getElementById('links')
+            let isOpen = false
+
+            // Mobile menu functionality
+            menu.addEventListener('click', function(){
+                isOpen = !isOpen
+                if(isOpen){
+                    overlay.style.display = 'block'
+                    links.style.display = 'block'
+                    right.style.zIndex = '101'
+                    right.style.color = '#7ce1ff'
+                    menu.classList.remove('fa-bars')
+                    menu.classList.add('fa-xmark')
+                }
+                else{
+                    overlay.style.display = 'none'
+                    links.style.display = 'none'
+                    right.style.color = '#000'
+                    menu.classList.remove('fa-xmark')
+                    menu.classList.add('fa-bars')
+                    right.style.zIndex = '1'
+                }
+            })
+
+            overlay.addEventListener('click', () => {
+                isOpen = false;
                 overlay.style.display = 'none'
                 links.style.display = 'none'
                 right.style.color = '#000'
                 menu.classList.remove('fa-xmark')
                 menu.classList.add('fa-bars')
                 right.style.zIndex = '1'
-            }
-        })
+            })
 
-        overlay.addEventListener('click', () => {
-            isOpen = false;
-            overlay.style.display = 'none'
-            links.style.display = 'none'
-            right.style.color = '#000'
-            menu.classList.remove('fa-xmark')
-            menu.classList.add('fa-bars')
-            right.style.zIndex = '1'
-        })
+            // Global variables
+            let message = document.getElementById('errorMsg')
+            let cardAdd = document.getElementById('cardAdd')
+            let loader = document.getElementById('loading')
+            let tot = 0
+            let withdrawTotal = 0
+            let transferTotal = 0
+            let scheduledTransactions = []
 
-        // Global variables
-        let message = document.getElementById('errorMsg')
-        let cardAdd = document.getElementById('cardAdd')
-        let loader = document.getElementById('loading')
-        let tot = 0
-        let withdrawTotal = 0
-        let transferTotal = 0
-        let scheduledTransactions = []
+            // Quick action buttons
+            let topUpQuick = document.getElementById('topUpQuick')
+            let withdrawQuick = document.getElementById('withdrawQuick')
+            let sendQuick = document.getElementById('sendQuick')
+            let scheduleQuick = document.getElementById('scheduleQuick')
 
-        // Quick action buttons
-        let topUpQuick = document.getElementById('topUpQuick')
-        let withdrawQuick = document.getElementById('withdrawQuick')
-        let sendQuick = document.getElementById('sendQuick')
-        let scheduleQuick = document.getElementById('scheduleQuick')
+            // Modal elements
+            let fill = document.getElementById('fill')
+            let withdrawFill = document.getElementById('withdrawFill')
+            let sendFill = document.getElementById('sendFill')
+            let scheduleFill = document.getElementById('scheduleFill')
 
-        // Modal elements
-        let fill = document.getElementById('fill')
-        let withdrawFill = document.getElementById('withdrawFill')
-        let sendFill = document.getElementById('sendFill')
-        let scheduleFill = document.getElementById('scheduleFill')
+            // Close buttons
+            let closeFill = document.getElementById('closeFill')
+            let closeWithdraw = document.getElementById('closeWithdraw')
+            let closeSend = document.getElementById('closeSend')
+            let closeSchedule = document.getElementById('closeSchedule')
 
-        // Close buttons
-        let closeFill = document.getElementById('closeFill')
-        let closeWithdraw = document.getElementById('closeWithdraw')
-        let closeSend = document.getElementById('closeSend')
-        let closeSchedule = document.getElementById('closeSchedule')
+            // Forms
+            let form = document.getElementById('form')
+            let withdrawForm = document.getElementById('withdrawForm')
+            let sendForm = document.getElementById('sendForm')
+            let scheduleForm = document.getElementById('scheduleForm')
 
-        // Forms
-        let form = document.getElementById('form')
-        let withdrawForm = document.getElementById('withdrawForm')
-        let sendForm = document.getElementById('sendForm')
-        let scheduleForm = document.getElementById('scheduleForm')
-
-        // Load data from localStorage on page load
-        function loadFromLocalStorage() {
-            const savedData = localStorage.getItem('expenseTrackerData')
-            if (savedData) {
-                const data = JSON.parse(savedData)
-                tot = data.tot || 0
-                withdrawTotal = data.withdrawTotal || 0
-                transferTotal = data.transferTotal || 0
-                scheduledTransactions = data.scheduledTransactions || []
-                
-                // Update UI with loaded data
-                updateUI()
-            }
-        }
-
-        // Save data to localStorage
-        function saveToLocalStorage() {
-            const data = {
-                tot: tot,
-                withdrawTotal: withdrawTotal,
-                transferTotal: transferTotal,
-                scheduledTransactions: scheduledTransactions
-            }
-            localStorage.setItem('expenseTrackerData', JSON.stringify(data))
-        }
-
-        // Save transaction to history
-        function saveTransactionToHistory(transaction) {
-            let transactionHistory = []
-            const savedHistory = localStorage.getItem('transactionHistory')
-            
-            if (savedHistory) {
-                transactionHistory = JSON.parse(savedHistory)
-            }
-            
-            transactionHistory.push(transaction)
-            localStorage.setItem('transactionHistory', JSON.stringify(transactionHistory))
-        }
-
-        // Update UI with current data
-        function updateUI() {
-            document.getElementById('totalIncome').textContent = `FCFA${tot}.00`
-            document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
-            document.getElementById('expenses').textContent = `FCFA${withdrawTotal + transferTotal}.00`
-            document.getElementById('topps').textContent = `+${tot}`
-            document.getElementById('withdraws').textContent = `-${withdrawTotal}.0`
-            document.getElementById('transfers').textContent = `-${transferTotal}.0`
-        }
-
-        // Top Up functionality
-        function increment(){
-            const depo = document.getElementById('depositAmount').value   
-            let values = parseInt(depo)
-            
-            if(!isNaN(values) && values >= 1000){
-                tot += values
-                document.getElementById('depositAmount').value = ''
-                
-                // Save individual transaction to history
-                const transaction = {
-                    id: Date.now(),
-                    type: 'topup',
-                    amount: values,
-                    date: new Date(),
-                    description: 'Top Up',
-                    reason: 'Card deposit',
-                    method: 'Card payment',
-                    icon: 'fa-solid fa-money-bill-trend-up',
-                    color: 'green'
-                }
-                saveTransactionToHistory(transaction)
-                
-                updateUI()
-                saveToLocalStorage()
-                console.log('Top up successful')
-                xoverla()
-                xshowfill()
-            }
-            else{
-                message.style.display = 'inline-block'
-                message.textContent = 'Please Enter a valid sum (minimum 1000 FCFA)'
-                setTimeout(() =>{
-                    message.style.display = 'none'
-                }, 2000);
-                console.log('Top up error')
-            }
-        }
-
-        // Withdraw functionality
-        function withdraw(){
-            const withdrawAmount = document.getElementById('withdrawAmount').value   
-            const withdrawMethod = document.getElementById('withdrawMethod').value
-            const withdrawReason = document.getElementById('withdrawReason').value
-            let values = parseInt(withdrawAmount)
-            
-            if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal) && withdrawMethod && withdrawReason){
-                withdrawTotal += values
-                document.getElementById('withdrawAmount').value = ''
-                document.getElementById('withdrawMethod').value = ''
-                document.getElementById('withdrawReason').value = ''
-                
-                // Save individual transaction to history
-                const transaction = {
-                    id: Date.now(),
-                    type: 'withdraw',
-                    amount: values,
-                    date: new Date(),
-                    description: 'Withdrawal',
-                    reason: withdrawReason,
-                    method: withdrawMethod,
-                    icon: 'fa-solid fa-arrow-up-from-bracket',
-                    color: 'red'
-                }
-                saveTransactionToHistory(transaction)
-                
-                updateUI()
-                saveToLocalStorage()
-                console.log('Withdraw successful')
-                xoverla()
-                xshowWithdraw()
-            }
-            else if(values > (tot - withdrawTotal - transferTotal)){
-                message.style.display = 'inline-block'
-                message.textContent = 'Insufficient balance for withdrawal'
-                setTimeout(() =>{
-                    message.style.display = 'none'
-                }, 2000);
-            }
-            else if(!withdrawMethod || !withdrawReason){
-                message.style.display = 'inline-block'
-                message.textContent = 'Please fill all fields'
-                setTimeout(() =>{
-                    message.style.display = 'none'
-                }, 2000);
-            }
-            else{
-                message.style.display = 'inline-block'
-                message.textContent = 'Please Enter a valid sum (minimum 1000 FCFA)'
-                setTimeout(() =>{
-                    message.style.display = 'none'
-                }, 2000);
-                console.log('Withdraw error')
-            }
-        }
-
-        // Send functionality
-        function sendMoney(){
-            const sendAmount = document.getElementById('sendAmount').value   
-            const sendReason = document.getElementById('sendReason').value
-            const senderName = document.getElementById('senderName').value
-            const recipientName = document.getElementById('recipientName').value
-            const recipientPhone = document.getElementById('recipientPhone').value
-            let values = parseInt(sendAmount)
-            
-            if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal) && sendReason){
-                transferTotal += values
-                document.getElementById('sendAmount').value = ''
-                document.getElementById('sendReason').value = ''
-                
-                // Save individual transaction to history
-                const transaction = {
-                    id: Date.now(),
-                    type: 'send',
-                    amount: values,
-                    date: new Date(),
-                    description: 'Money Transfer',
-                    reason: sendReason,
-                    method: 'Mobile transfer',
-                    senderName: senderName,
-                    recipientName: recipientName,
-                    recipientPhone: recipientPhone,
-                    icon: 'fa-solid fa-money-bill-transfer',
-                    color: 'red'
-                }
-                saveTransactionToHistory(transaction)
-                
-                updateUI()
-                saveToLocalStorage()
-                console.log('Send money successful')
-                xoverla()
-                xshowSend()
-            }
-            else if(values > (tot - withdrawTotal - transferTotal)){
-                message.style.display = 'inline-block'
-                message.textContent = 'Insufficient balance for transfer'
-                setTimeout(() =>{
-                    message.style.display = 'none'
-                }, 2000);
-            }
-            else if(!sendReason){
-                message.style.display = 'inline-block'
-                message.textContent = 'Please fill all fields'
-                setTimeout(() =>{
-                    message.style.display = 'none'
-                }, 2000);
-            }
-            else{
-                message.style.display = 'inline-block'
-                message.textContent = 'Please Enter a valid sum (minimum 1000 FCFA)'
-                setTimeout(() =>{
-                    message.style.display = 'none'
-                }, 2000);
-                console.log('Send money error')
-            }
-        }
-
-        // Schedule functionality
-        function scheduleTransaction(){
-            const scheduleType = document.getElementById('scheduleType').value
-            const scheduleAmount = document.getElementById('scheduleAmount').value
-            const scheduleDate = document.getElementById('scheduleDate').value
-            const scheduleTime = document.getElementById('scheduleTime').value
-            const scheduleReason = document.getElementById('scheduleReason').value
-            
-            // Get additional fields based on transaction type
-            let additionalData = {}
-            if(scheduleType === 'withdraw') {
-                const withdrawMethod = document.getElementById('scheduleWithdrawMethod').value
-                const withdrawName = document.getElementById('scheduleWithdrawName').value
-                if(!withdrawMethod || !withdrawName) {
-                    message.style.display = 'inline-block'
-                    message.textContent = 'Please fill all withdraw fields'
-                    setTimeout(() =>{
-                        message.style.display = 'none'
-                    }, 2000);
-                    return
-                }
-                additionalData = { method: withdrawMethod, name: withdrawName }
-            } else if(scheduleType === 'send') {
-                const senderName = document.getElementById('scheduleSenderName').value
-                const recipientName = document.getElementById('scheduleRecipientName').value
-                const recipientPhone = document.getElementById('scheduleRecipientPhone').value
-                if(!senderName || !recipientName || !recipientPhone) {
-                    message.style.display = 'inline-block'
-                    message.textContent = 'Please fill all send fields'
-                    setTimeout(() =>{
-                        message.style.display = 'none'
-                    }, 2000);
-                    return
-                }
-                additionalData = { senderName, recipientName, recipientPhone }
-            }
-            
-            if(scheduleType && scheduleAmount && scheduleDate && scheduleTime && scheduleReason){
-                let values = parseInt(scheduleAmount)
-                if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal)){
-                    const scheduledDateTime = new Date(`${scheduleDate}T${scheduleTime}`)
-                    const now = new Date()
+            // Load data from localStorage on page load
+            function loadFromLocalStorage() {
+                const savedData = localStorage.getItem('expenseTrackerData')
+                if (savedData) {
+                    const data = JSON.parse(savedData)
+                    tot = data.tot || 0
+                    withdrawTotal = data.withdrawTotal || 0
+                    transferTotal = data.transferTotal || 0
+                    scheduledTransactions = data.scheduledTransactions || []
                     
-                    if(scheduledDateTime > now){
-                        const transaction = {
-                            type: scheduleType,
-                            amount: values,
-                            dateTime: scheduledDateTime,
-                            reason: scheduleReason,
-                            ...additionalData,
-                            id: Date.now()
-                        }
-                        scheduledTransactions.push(transaction)
-                        
-                        message.style.display = 'inline-block'
-                        message.textContent = `Transaction scheduled for ${scheduleDate} at ${scheduleTime}`
-                        message.style.color = '#00ff00'
-                        setTimeout(() =>{
-                            message.style.display = 'none'
-                            message.style.color = '#f00'
-                        }, 3000);
-                        
-                        // Clear all form fields
-                        document.getElementById('scheduleAmount').value = ''
-                        document.getElementById('scheduleDate').value = ''
-                        document.getElementById('scheduleTime').value = ''
-                        document.getElementById('scheduleType').value = ''
-                        document.getElementById('scheduleReason').value = ''
-                        document.getElementById('scheduleWithdrawMethod').value = ''
-                        document.getElementById('scheduleWithdrawName').value = ''
-                        document.getElementById('scheduleSenderName').value = ''
-                        document.getElementById('scheduleRecipientName').value = ''
-                        document.getElementById('scheduleRecipientPhone').value = ''
-                        
-                        // Hide dynamic fields
-                        document.getElementById('withdrawFields').style.display = 'none'
-                        document.getElementById('sendFields').style.display = 'none'
-                        
-                        saveToLocalStorage()
-                        console.log('Transaction scheduled successfully')
-                        xoverla()
-                        xshowSchedule()
-                    } else {
-                        message.style.display = 'inline-block'
-                        message.textContent = 'Please select a future date and time'
-                        setTimeout(() =>{
-                            message.style.display = 'none'
-                        }, 2000);
+                    // Update UI with loaded data
+                    updateUI()
+                }
+            }
+
+            // Save data to localStorage
+            function saveToLocalStorage() {
+                const data = {
+                    tot: tot,
+                    withdrawTotal: withdrawTotal,
+                    transferTotal: transferTotal,
+                    scheduledTransactions: scheduledTransactions
+                }
+                localStorage.setItem('expenseTrackerData', JSON.stringify(data))
+            }
+
+            // Save transaction to history
+            function saveTransactionToHistory(transaction) {
+                let transactionHistory = []
+                const savedHistory = localStorage.getItem('transactionHistory')
+                
+                if (savedHistory) {
+                    transactionHistory = JSON.parse(savedHistory)
+                }
+                
+                transactionHistory.push(transaction)
+                localStorage.setItem('transactionHistory', JSON.stringify(transactionHistory))
+            }
+
+            // Update UI with current data
+            function updateUI() {
+                document.getElementById('totalIncome').textContent = `FCFA${tot}.00`
+                document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
+                document.getElementById('expenses').textContent = `FCFA${withdrawTotal + transferTotal}.00`
+                document.getElementById('topps').textContent = `+${tot}`
+                document.getElementById('withdraws').textContent = `-${withdrawTotal}.0`
+                document.getElementById('transfers').textContent = `-${transferTotal}.0`
+            }
+
+            // Top Up functionality
+            function increment(){
+                const depo = document.getElementById('depositAmount').value   
+                let values = parseInt(depo)
+                
+                if(!isNaN(values) && values >= 1000){
+                    tot += values
+                    document.getElementById('depositAmount').value = ''
+                    
+                    // Save individual transaction to history
+                    const transaction = {
+                        id: Date.now(),
+                        type: 'topup',
+                        amount: values,
+                        date: new Date(),
+                        description: 'Top Up',
+                        reason: 'Card deposit',
+                        method: 'Card payment',
+                        icon: 'fa-solid fa-money-bill-trend-up',
+                        color: 'green'
                     }
-                } else if(values > (tot - withdrawTotal - transferTotal)){
-                    message.style.display = 'inline-block'
-                    message.textContent = 'Insufficient balance for scheduled transaction'
-                    setTimeout(() =>{
-                        message.style.display = 'none'
-                    }, 2000);
-                } else {
+                    saveTransactionToHistory(transaction)
+                    
+                    updateUI()
+                    saveToLocalStorage()
+                    console.log('Top up successful')
+                    xoverla()
+                    xshowfill()
+                }
+                else{
                     message.style.display = 'inline-block'
                     message.textContent = 'Please Enter a valid sum (minimum 1000 FCFA)'
                     setTimeout(() =>{
                         message.style.display = 'none'
                     }, 2000);
+                    console.log('Top up error')
                 }
-            } else {
-                message.style.display = 'inline-block'
-                message.textContent = 'Please fill all fields'
-                setTimeout(() =>{
-                    message.style.display = 'none'
-                }, 2000);
             }
-        }
 
-        // Check scheduled transactions
-        function checkScheduledTransactions(){
-            const now = new Date()
-            let hasExecuted = false
-            
-            scheduledTransactions = scheduledTransactions.filter(transaction => {
-                if(transaction.dateTime <= now){
-                    // Execute the transaction
-                    if(transaction.type === 'withdraw'){
-                        withdrawTotal += transaction.amount
-                        hasExecuted = true
-                    } else if(transaction.type === 'send'){
-                        transferTotal += transaction.amount
-                        hasExecuted = true
-                    }
-                    
-                    return false // Remove from array
-                }
-                return true // Keep in array
-            })
-            
-            if(hasExecuted) {
-                updateUI()
-                saveToLocalStorage()
+            // Withdraw functionality
+            function withdraw(){
+                const withdrawAmount = document.getElementById('withdrawAmount').value   
+                const withdrawMethod = document.getElementById('withdrawMethod').value
+                const withdrawReason = document.getElementById('withdrawReason').value
+                let values = parseInt(withdrawAmount)
                 
-                message.style.display = 'inline-block'
-                message.textContent = `Scheduled transaction executed successfully`
-                message.style.color = '#00ff00'
-                setTimeout(() =>{
-                    message.style.display = 'none'
-                    message.style.color = '#f00'
-                }, 3000);
-            }
-        }
-
-        // Check scheduled transactions every 10 seconds for better responsiveness
-        setInterval(checkScheduledTransactions, 10000)
-
-        // Event listeners for forms
-        form.addEventListener('submit', function(e){
-            e.preventDefault()
-            increment()
-        })
-
-        withdrawForm.addEventListener('submit', function(e){
-            e.preventDefault()
-            withdraw()
-        })
-
-        sendForm.addEventListener('submit', function(e){
-            e.preventDefault()
-            sendMoney()
-        })
-
-        scheduleForm.addEventListener('submit', function(e){
-            e.preventDefault()
-            scheduleTransaction()
-        })
-
-        // Schedule type change event listener
-        document.getElementById('scheduleType').addEventListener('change', function() {
-            const scheduleType = this.value
-            const withdrawFields = document.getElementById('withdrawFields')
-            const sendFields = document.getElementById('sendFields')
-            
-            // Hide all dynamic fields first
-            withdrawFields.style.display = 'none'
-            sendFields.style.display = 'none'
-            
-            // Show appropriate fields based on selection
-            if(scheduleType === 'withdraw') {
-                withdrawFields.style.display = 'block'
-                // Make withdraw fields required
-                document.getElementById('scheduleWithdrawMethod').required = true
-                document.getElementById('scheduleWithdrawName').required = true
-                // Make send fields not required
-                document.getElementById('scheduleSenderName').required = false
-                document.getElementById('scheduleRecipientName').required = false
-                document.getElementById('scheduleRecipientPhone').required = false
-            } else if(scheduleType === 'send') {
-                sendFields.style.display = 'block'
-                // Make send fields required
-                document.getElementById('scheduleSenderName').required = true
-                document.getElementById('scheduleRecipientName').required = true
-                document.getElementById('scheduleRecipientPhone').required = true
-                // Make withdraw fields not required
-                document.getElementById('scheduleWithdrawMethod').required = false
-                document.getElementById('scheduleWithdrawName').required = false
-            } else {
-                // No selection, make all fields not required
-                document.getElementById('scheduleWithdrawMethod').required = false
-                document.getElementById('scheduleWithdrawName').required = false
-                document.getElementById('scheduleSenderName').required = false
-                document.getElementById('scheduleRecipientName').required = false
-                document.getElementById('scheduleRecipientPhone').required = false
-            }
-        })
-
-        // Quick action button event listeners
-        topUpQuick.addEventListener('click', function(){
-            overla()
-            showLoader()
-            showfill()
-        })
-
-        withdrawQuick.addEventListener('click', function(){
-            overla()
-            showLoader()
-            showWithdraw()
-        })
-
-        sendQuick.addEventListener('click', function(){
-            overla()
-            showLoader()
-            showSend()
-        })
-
-        scheduleQuick.addEventListener('click', function(){
-            overla()
-            showLoader()
-            showSchedule()
-        })
-
-        // Card add button
-        cardAdd.addEventListener('click', function(){
-            overla()
-            showLoader()
-            showfill()
-        })
-
-        // Close button event listeners
-        closeFill.addEventListener('click', function(){
-            xoverla()
-            xshowfill()
-        })
-
-        closeWithdraw.addEventListener('click', function(){
-            xoverla()
-            xshowWithdraw()
-        })
-
-        closeSend.addEventListener('click', function(){
-            xoverla()
-            xshowSend()
-        })
-
-        closeSchedule.addEventListener('click', function(){
-            xoverla()
-            xshowSchedule()
-        })
-
-        // Modal functions
-        function overla(){
-            overlay.style.display = 'block'
-            document.body.style.overflow = 'hidden'
-        }
-
-        function xoverla(){
-            overlay.style.display = 'none'
-            document.body.style.overflow = 'visible'
-        }
-
-        function showLoader(){
-            loader.style.display = 'block'
-            setTimeout(() => {
-                loader.style.display = 'none'
-            }, 4000)
-        }
-
-        function showfill(){
-            setTimeout(() => {
-                fill.style.display = 'block'
-            }, 5000)
-        }
-
-        function xshowfill(){
-            fill.style.display = 'none'
-        }
-
-        function showWithdraw(){
-            setTimeout(() => {
-                withdrawFill.style.display = 'block'
-            }, 5000)
-        }
-
-        function xshowWithdraw(){
-            withdrawFill.style.display = 'none'
-        }
-
-        function showSend(){
-            setTimeout(() => {
-                sendFill.style.display = 'block'
-            }, 5000)
-        }
-
-        function xshowSend(){
-            sendFill.style.display = 'none'
-        }
-
-        function showSchedule(){
-            setTimeout(() => {
-                scheduleFill.style.display = 'block'
-            }, 5000)
-        }
-
-        function xshowSchedule(){
-            scheduleFill.style.display = 'none'
-        }
-
-        // Load data when page loads
-        loadFromLocalStorage()
-
-        // Function to show Top Up transaction details
-        function showTopUpDetails() {
-            const transactions = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
-            const topUpTransactions = transactions.filter(t => t.type === 'topup');
-
-            if (topUpTransactions.length === 0) {
-                alert('No Top Up transactions found.');
-                return;
+                if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal) && withdrawMethod && withdrawReason){
+                    withdrawTotal += values
+                    document.getElementById('withdrawAmount').value = ''
+                    document.getElementById('withdrawMethod').value = ''
+                    document.getElementById('withdrawReason').value = ''
+                    
+                    // Save individual transaction to history
+                    const transaction = {
+                        id: Date.now(),
+                        type: 'withdraw',
+                        amount: values,
+                        date: new Date(),
+                        description: 'Withdrawal',
+                        reason: withdrawReason,
+                        method: withdrawMethod,
+                        icon: 'fa-solid fa-arrow-up-from-bracket',
+                        color: 'red'
+                    }
+                    saveTransactionToHistory(transaction)
+                    
+                    updateUI()
+                    saveToLocalStorage()
+                    console.log('Withdraw successful')
+                    xoverla()
+                    xshowWithdraw()
+                }
+                else if(values > (tot - withdrawTotal - transferTotal)){
+                    message.style.display = 'inline-block'
+                    message.textContent = 'Insufficient balance for withdrawal'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                    }, 2000);
+                }
+                else if(!withdrawMethod || !withdrawReason){
+                    message.style.display = 'inline-block'
+                    message.textContent = 'Please fill all fields'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                    }, 2000);
+                }
+                else{
+                    message.style.display = 'inline-block'
+                    message.textContent = 'Please Enter a valid sum (minimum 1000 FCFA)'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                    }, 2000);
+                    console.log('Withdraw error')
+                }
             }
 
-            const detailsList = document.getElementById('topUpDetailsList');
-            detailsList.innerHTML = topUpTransactions.map(t => `
-                <div class="transaction-detail-item">
-                    <div class="detail-header">
-                        <i class="fa-solid fa-money-bill-trend-up" style="color: #28a745;"></i>
-                        <span class="amount">+FCFA ${t.amount.toLocaleString()}</span>
-                    </div>
-                    <div class="detail-info">
-                        <p><strong>Date:</strong> ${new Date(t.date).toLocaleDateString()} at ${new Date(t.date).toLocaleTimeString()}</p>
-                        <p><strong>Reason:</strong> ${t.reason || 'N/A'}</p>
-                        <p><strong>Method:</strong> ${t.method || 'N/A'}</p>
-                        <p><strong>Transaction ID:</strong> ${t.id.toString().slice(-6)}</p>
-                    </div>
-                </div>
-            `).join('');
-
-            overla();
-            showTopUpDetailsModal();
-        }
-
-        // Function to show Withdrawal transaction details
-        function showWithdrawDetails() {
-            const transactions = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
-            const withdrawTransactions = transactions.filter(t => t.type === 'withdraw');
-
-            if (withdrawTransactions.length === 0) {
-                alert('No Withdrawal transactions found.');
-                return;
+            // Send functionality
+            function sendMoney(){
+                const sendAmount = document.getElementById('sendAmount').value   
+                const sendReason = document.getElementById('sendReason').value
+                const senderName = document.getElementById('senderName').value
+                const recipientName = document.getElementById('recipientName').value
+                const recipientPhone = document.getElementById('recipientPhone').value
+                let values = parseInt(sendAmount)
+                
+                if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal) && sendReason){
+                    transferTotal += values
+                    document.getElementById('sendAmount').value = ''
+                    document.getElementById('sendReason').value = ''
+                    
+                    // Save individual transaction to history
+                    const transaction = {
+                        id: Date.now(),
+                        type: 'send',
+                        amount: values,
+                        date: new Date(),
+                        description: 'Money Transfer',
+                        reason: sendReason,
+                        method: 'Mobile transfer',
+                        senderName: senderName,
+                        recipientName: recipientName,
+                        recipientPhone: recipientPhone,
+                        icon: 'fa-solid fa-money-bill-transfer',
+                        color: 'red'
+                    }
+                    saveTransactionToHistory(transaction)
+                    
+                    updateUI()
+                    saveToLocalStorage()
+                    console.log('Send money successful')
+                    xoverla()
+                    xshowSend()
+                }
+                else if(values > (tot - withdrawTotal - transferTotal)){
+                    message.style.display = 'inline-block'
+                    message.textContent = 'Insufficient balance for transfer'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                    }, 2000);
+                }
+                else if(!sendReason){
+                    message.style.display = 'inline-block'
+                    message.textContent = 'Please fill all fields'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                    }, 2000);
+                }
+                else{
+                    message.style.display = 'inline-block'
+                    message.textContent = 'Please Enter a valid sum (minimum 1000 FCFA)'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                    }, 2000);
+                    console.log('Send money error')
+                }
             }
 
-            const detailsList = document.getElementById('withdrawDetailsList');
-            detailsList.innerHTML = withdrawTransactions.map(t => `
-                <div class="transaction-detail-item">
-                    <div class="detail-header">
-                        <i class="fa-solid fa-arrow-up-from-bracket" style="color: #dc3545;"></i>
-                        <span class="amount">-FCFA ${t.amount.toLocaleString()}</span>
-                    </div>
-                    <div class="detail-info">
-                        <p><strong>Date:</strong> ${new Date(t.date).toLocaleDateString()} at ${new Date(t.date).toLocaleTimeString()}</p>
-                        <p><strong>Reason:</strong> ${t.reason || 'N/A'}</p>
-                        <p><strong>Method:</strong> ${t.method || 'N/A'}</p>
-                        <p><strong>Transaction ID:</strong> ${t.id.toString().slice(-6)}</p>
-                    </div>
-                </div>
-            `).join('');
-
-            overla();
-            showWithdrawDetailsModal();
-        }
-
-        // Function to show Transfer transaction details
-        function showTransferDetails() {
-            const transactions = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
-            const transferTransactions = transactions.filter(t => t.type === 'send');
-
-            if (transferTransactions.length === 0) {
-                alert('No Transfer transactions found.');
-                return;
+            // Schedule functionality
+            function scheduleTransaction(){
+                const scheduleType = document.getElementById('scheduleType').value
+                const scheduleAmount = document.getElementById('scheduleAmount').value
+                const scheduleDate = document.getElementById('scheduleDate').value
+                const scheduleTime = document.getElementById('scheduleTime').value
+                const scheduleReason = document.getElementById('scheduleReason').value
+                
+                // Get additional fields based on transaction type
+                let additionalData = {}
+                if(scheduleType === 'withdraw') {
+                    const withdrawMethod = document.getElementById('scheduleWithdrawMethod').value
+                    const withdrawName = document.getElementById('scheduleWithdrawName').value
+                    if(!withdrawMethod || !withdrawName) {
+                        message.style.display = 'inline-block'
+                        message.textContent = 'Please fill all withdraw fields'
+                        setTimeout(() =>{
+                            message.style.display = 'none'
+                        }, 2000);
+                        return
+                    }
+                    additionalData = { method: withdrawMethod, name: withdrawName }
+                } else if(scheduleType === 'send') {
+                    const senderName = document.getElementById('scheduleSenderName').value
+                    const recipientName = document.getElementById('scheduleRecipientName').value
+                    const recipientPhone = document.getElementById('scheduleRecipientPhone').value
+                    if(!senderName || !recipientName || !recipientPhone) {
+                        message.style.display = 'inline-block'
+                        message.textContent = 'Please fill all send fields'
+                        setTimeout(() =>{
+                            message.style.display = 'none'
+                        }, 2000);
+                        return
+                    }
+                    additionalData = { senderName, recipientName, recipientPhone }
+                }
+                
+                if(scheduleType && scheduleAmount && scheduleDate && scheduleTime && scheduleReason){
+                    let values = parseInt(scheduleAmount)
+                    if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal)){
+                        const scheduledDateTime = new Date(`${scheduleDate}T${scheduleTime}`)
+                        const now = new Date()
+                        
+                        if(scheduledDateTime > now){
+                            const transaction = {
+                                type: scheduleType,
+                                amount: values,
+                                dateTime: scheduledDateTime,
+                                reason: scheduleReason,
+                                ...additionalData,
+                                id: Date.now()
+                            }
+                            scheduledTransactions.push(transaction)
+                            
+                            message.style.display = 'inline-block'
+                            message.textContent = `Transaction scheduled for ${scheduleDate} at ${scheduleTime}`
+                            message.style.color = '#00ff00'
+                            setTimeout(() =>{
+                                message.style.display = 'none'
+                                message.style.color = '#f00'
+                            }, 3000);
+                            
+                            // Clear all form fields
+                            document.getElementById('scheduleAmount').value = ''
+                            document.getElementById('scheduleDate').value = ''
+                            document.getElementById('scheduleTime').value = ''
+                            document.getElementById('scheduleType').value = ''
+                            document.getElementById('scheduleReason').value = ''
+                            document.getElementById('scheduleWithdrawMethod').value = ''
+                            document.getElementById('scheduleWithdrawName').value = ''
+                            document.getElementById('scheduleSenderName').value = ''
+                            document.getElementById('scheduleRecipientName').value = ''
+                            document.getElementById('scheduleRecipientPhone').value = ''
+                            
+                            // Hide dynamic fields
+                            document.getElementById('withdrawFields').style.display = 'none'
+                            document.getElementById('sendFields').style.display = 'none'
+                            
+                            saveToLocalStorage()
+                            console.log('Transaction scheduled successfully')
+                            xoverla()
+                            xshowSchedule()
+                        } else {
+                            message.style.display = 'inline-block'
+                            message.textContent = 'Please select a future date and time'
+                            setTimeout(() =>{
+                                message.style.display = 'none'
+                            }, 2000);
+                        }
+                    } else if(values > (tot - withdrawTotal - transferTotal)){
+                        message.style.display = 'inline-block'
+                        message.textContent = 'Insufficient balance for scheduled transaction'
+                        setTimeout(() =>{
+                            message.style.display = 'none'
+                        }, 2000);
+                    } else {
+                        message.style.display = 'inline-block'
+                        message.textContent = 'Please Enter a valid sum (minimum 1000 FCFA)'
+                        setTimeout(() =>{
+                            message.style.display = 'none'
+                        }, 2000);
+                    }
+                } else {
+                    message.style.display = 'inline-block'
+                    message.textContent = 'Please fill all fields'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                    }, 2000);
+                }
             }
 
-            const detailsList = document.getElementById('transferDetailsList');
-            detailsList.innerHTML = transferTransactions.map(t => `
-                <div class="transaction-detail-item">
-                    <div class="detail-header">
-                        <i class="fa-solid fa-money-bill-transfer" style="color: #dc3545;"></i>
-                        <span class="amount">-FCFA ${t.amount.toLocaleString()}</span>
-                    </div>
-                    <div class="detail-info">
-                        <p><strong>Date:</strong> ${new Date(t.date).toLocaleDateString()} at ${new Date(t.date).toLocaleTimeString()}</p>
-                        <p><strong>Reason:</strong> ${t.reason || 'N/A'}</p>
-                        <p><strong>Method:</strong> ${t.method || 'N/A'}</p>
-                        <p><strong>Sender:</strong> ${t.senderName || 'N/A'}</p>
-                        <p><strong>Recipient:</strong> ${t.recipientName || 'N/A'}</p>
-                        <p><strong>Phone:</strong> ${t.recipientPhone || 'N/A'}</p>
-                        <p><strong>Transaction ID:</strong> ${t.id.toString().slice(-6)}</p>
-                    </div>
-                </div>
-            `).join('');
-
-            overla();
-            showTransferDetailsModal();
-        }
-
-        // Function to show Premium Fee details
-        function showPremiumDetails() {
-            const transactions = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
-            const premiumTransactions = transactions.filter(t => t.type === 'premium');
-
-            if (premiumTransactions.length === 0) {
-                alert('No Premium Fee transactions found.');
-                return;
+            // Check scheduled transactions
+            function checkScheduledTransactions(){
+                const now = new Date()
+                let hasExecuted = false
+                
+                scheduledTransactions = scheduledTransactions.filter(transaction => {
+                    if(transaction.dateTime <= now){
+                        // Execute the transaction
+                        if(transaction.type === 'withdraw'){
+                            withdrawTotal += transaction.amount
+                            hasExecuted = true
+                        } else if(transaction.type === 'send'){
+                            transferTotal += transaction.amount
+                            hasExecuted = true
+                        }
+                        
+                        return false // Remove from array
+                    }
+                    return true // Keep in array
+                })
+                
+                if(hasExecuted) {
+                    updateUI()
+                    saveToLocalStorage()
+                    
+                    message.style.display = 'inline-block'
+                    message.textContent = `Scheduled transaction executed successfully`
+                    message.style.color = '#00ff00'
+                    setTimeout(() =>{
+                        message.style.display = 'none'
+                        message.style.color = '#f00'
+                    }, 3000);
+                }
             }
 
-            const detailsList = document.getElementById('premiumDetailsList');
-            detailsList.innerHTML = premiumTransactions.map(t => `
-                <div class="transaction-detail-item">
-                    <div class="detail-header">
-                        <i class="fa-solid fa-coins" style="color: #ffc107;"></i>
-                        <span class="amount">-FCFA ${t.amount.toLocaleString()}</span>
+            // Check scheduled transactions every 10 seconds for better responsiveness
+            setInterval(checkScheduledTransactions, 10000)
+
+            // Event listeners for forms
+            form.addEventListener('submit', function(e){
+                e.preventDefault()
+                increment()
+            })
+
+            withdrawForm.addEventListener('submit', function(e){
+                e.preventDefault()
+                withdraw()
+            })
+
+            sendForm.addEventListener('submit', function(e){
+                e.preventDefault()
+                sendMoney()
+            })
+
+            scheduleForm.addEventListener('submit', function(e){
+                e.preventDefault()
+                scheduleTransaction()
+            })
+
+            // Schedule type change event listener
+            document.getElementById('scheduleType').addEventListener('change', function() {
+                const scheduleType = this.value
+                const withdrawFields = document.getElementById('withdrawFields')
+                const sendFields = document.getElementById('sendFields')
+                
+                // Hide all dynamic fields first
+                withdrawFields.style.display = 'none'
+                sendFields.style.display = 'none'
+                
+                // Show appropriate fields based on selection
+                if(scheduleType === 'withdraw') {
+                    withdrawFields.style.display = 'block'
+                    // Make withdraw fields required
+                    document.getElementById('scheduleWithdrawMethod').required = true
+                    document.getElementById('scheduleWithdrawName').required = true
+                    // Make send fields not required
+                    document.getElementById('scheduleSenderName').required = false
+                    document.getElementById('scheduleRecipientName').required = false
+                    document.getElementById('scheduleRecipientPhone').required = false
+                } else if(scheduleType === 'send') {
+                    sendFields.style.display = 'block'
+                    // Make send fields required
+                    document.getElementById('scheduleSenderName').required = true
+                    document.getElementById('scheduleRecipientName').required = true
+                    document.getElementById('scheduleRecipientPhone').required = true
+                    // Make withdraw fields not required
+                    document.getElementById('scheduleWithdrawMethod').required = false
+                    document.getElementById('scheduleWithdrawName').required = false
+                } else {
+                    // No selection, make all fields not required
+                    document.getElementById('scheduleWithdrawMethod').required = false
+                    document.getElementById('scheduleWithdrawName').required = false
+                    document.getElementById('scheduleSenderName').required = false
+                    document.getElementById('scheduleRecipientName').required = false
+                    document.getElementById('scheduleRecipientPhone').required = false
+                }
+            })
+
+            // Quick action button event listeners
+            topUpQuick.addEventListener('click', function(){
+                overla()
+                showLoader()
+                showfill()
+            })
+
+            withdrawQuick.addEventListener('click', function(){
+                overla()
+                showLoader()
+                showWithdraw()
+            })
+
+            sendQuick.addEventListener('click', function(){
+                overla()
+                showLoader()
+                showSend()
+            })
+
+            scheduleQuick.addEventListener('click', function(){
+                overla()
+                showLoader()
+                showSchedule()
+            })
+
+            // Card add button
+            cardAdd.addEventListener('click', function(){
+                overla()
+                showLoader()
+                showfill()
+            })
+
+            // Close button event listeners
+            closeFill.addEventListener('click', function(){
+                xoverla()
+                xshowfill()
+            })
+
+            closeWithdraw.addEventListener('click', function(){
+                xoverla()
+                xshowWithdraw()
+            })
+
+            closeSend.addEventListener('click', function(){
+                xoverla()
+                xshowSend()
+            })
+
+            closeSchedule.addEventListener('click', function(){
+                xoverla()
+                xshowSchedule()
+            })
+
+            // Modal functions
+            function overla(){
+                overlay.style.display = 'block'
+                document.body.style.overflow = 'hidden'
+            }
+
+            function xoverla(){
+                overlay.style.display = 'none'
+                document.body.style.overflow = 'visible'
+            }
+
+            function showLoader(){
+                loader.style.display = 'block'
+                setTimeout(() => {
+                    loader.style.display = 'none'
+                }, 4000)
+            }
+
+            function showfill(){
+                setTimeout(() => {
+                    fill.style.display = 'block'
+                }, 5000)
+            }
+
+            function xshowfill(){
+                fill.style.display = 'none'
+            }
+
+            function showWithdraw(){
+                setTimeout(() => {
+                    withdrawFill.style.display = 'block'
+                }, 5000)
+            }
+
+            function xshowWithdraw(){
+                withdrawFill.style.display = 'none'
+            }
+
+            function showSend(){
+                setTimeout(() => {
+                    sendFill.style.display = 'block'
+                }, 5000)
+            }
+
+            function xshowSend(){
+                sendFill.style.display = 'none'
+            }
+
+            function showSchedule(){
+                setTimeout(() => {
+                    scheduleFill.style.display = 'block'
+                }, 5000)
+            }
+
+            function xshowSchedule(){
+                scheduleFill.style.display = 'none'
+            }
+
+            // Load data when page loads
+            loadFromLocalStorage()
+
+            // Function to show Top Up transaction details
+            function showTopUpDetails() {
+                const transactions = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
+                const topUpTransactions = transactions.filter(t => t.type === 'topup');
+
+                if (topUpTransactions.length === 0) {
+                    alert('No Top Up transactions found.');
+                    return;
+                }
+
+                const detailsList = document.getElementById('topUpDetailsList');
+                detailsList.innerHTML = topUpTransactions.map(t => `
+                    <div class="transaction-detail-item">
+                        <div class="detail-header">
+                            <i class="fa-solid fa-money-bill-trend-up" style="color: #28a745;"></i>
+                            <span class="amount">+FCFA ${t.amount.toLocaleString()}</span>
+                        </div>
+                        <div class="detail-info">
+                            <p><strong>Date:</strong> ${new Date(t.date).toLocaleDateString()} at ${new Date(t.date).toLocaleTimeString()}</p>
+                            <p><strong>Reason:</strong> ${t.reason || 'N/A'}</p>
+                            <p><strong>Method:</strong> ${t.method || 'N/A'}</p>
+                            <p><strong>Transaction ID:</strong> ${t.id.toString().slice(-6)}</p>
+                        </div>
                     </div>
-                    <div class="detail-info">
-                        <p><strong>Date:</strong> ${new Date(t.date).toLocaleDateString()} at ${new Date(t.date).toLocaleTimeString()}</p>
-                        <p><strong>Reason:</strong> ${t.reason || 'N/A'}</p>
-                        <p><strong>Transaction ID:</strong> ${t.id.toString().slice(-6)}</p>
+                `).join('');
+
+                overla();
+                showTopUpDetailsModal();
+            }
+
+            // Function to show Withdrawal transaction details
+            function showWithdrawDetails() {
+                const transactions = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
+                const withdrawTransactions = transactions.filter(t => t.type === 'withdraw');
+
+                if (withdrawTransactions.length === 0) {
+                    alert('No Withdrawal transactions found.');
+                    return;
+                }
+
+                const detailsList = document.getElementById('withdrawDetailsList');
+                detailsList.innerHTML = withdrawTransactions.map(t => `
+                    <div class="transaction-detail-item">
+                        <div class="detail-header">
+                            <i class="fa-solid fa-arrow-up-from-bracket" style="color: #dc3545;"></i>
+                            <span class="amount">-FCFA ${t.amount.toLocaleString()}</span>
+                        </div>
+                        <div class="detail-info">
+                            <p><strong>Date:</strong> ${new Date(t.date).toLocaleDateString()} at ${new Date(t.date).toLocaleTimeString()}</p>
+                            <p><strong>Reason:</strong> ${t.reason || 'N/A'}</p>
+                            <p><strong>Method:</strong> ${t.method || 'N/A'}</p>
+                            <p><strong>Transaction ID:</strong> ${t.id.toString().slice(-6)}</p>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
 
-            overla();
-            showPremiumDetailsModal();
-        }
+                overla();
+                showWithdrawDetailsModal();
+            }
 
-        // Modal display functions
-        function showTopUpDetailsModal() {
-            setTimeout(() => {
-                document.getElementById('topUpDetails').style.display = 'block';
-            }, 1000);
-        }
+            // Function to show Transfer transaction details
+            function showTransferDetails() {
+                const transactions = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
+                const transferTransactions = transactions.filter(t => t.type === 'send');
 
-        function showWithdrawDetailsModal() {
-            setTimeout(() => {
-                document.getElementById('withdrawDetails').style.display = 'block';
-            }, 1000);
-        }
+                if (transferTransactions.length === 0) {
+                    alert('No Transfer transactions found.');
+                    return;
+                }
 
-        function showTransferDetailsModal() {
-            setTimeout(() => {
-                document.getElementById('transferDetails').style.display = 'block';
-            }, 1000);
-        }
+                const detailsList = document.getElementById('transferDetailsList');
+                detailsList.innerHTML = transferTransactions.map(t => `
+                    <div class="transaction-detail-item">
+                        <div class="detail-header">
+                            <i class="fa-solid fa-money-bill-transfer" style="color: #dc3545;"></i>
+                            <span class="amount">-FCFA ${t.amount.toLocaleString()}</span>
+                        </div>
+                        <div class="detail-info">
+                            <p><strong>Date:</strong> ${new Date(t.date).toLocaleDateString()} at ${new Date(t.date).toLocaleTimeString()}</p>
+                            <p><strong>Reason:</strong> ${t.reason || 'N/A'}</p>
+                            <p><strong>Method:</strong> ${t.method || 'N/A'}</p>
+                            <p><strong>Sender:</strong> ${t.senderName || 'N/A'}</p>
+                            <p><strong>Recipient:</strong> ${t.recipientName || 'N/A'}</p>
+                            <p><strong>Phone:</strong> ${t.recipientPhone || 'N/A'}</p>
+                            <p><strong>Transaction ID:</strong> ${t.id.toString().slice(-6)}</p>
+                        </div>
+                    </div>
+                `).join('');
 
-        function showPremiumDetailsModal() {
-            setTimeout(() => {
-                document.getElementById('premiumDetails').style.display = 'block';
-            }, 1000);
-        }
+                overla();
+                showTransferDetailsModal();
+            }
 
-        // Close modal functions
-        function closeTopUpDetails() {
-            document.getElementById('topUpDetails').style.display = 'none';
-            xoverla();
-        }
+            // Function to show Premium Fee details
+            function showPremiumDetails() {
+                const transactions = JSON.parse(localStorage.getItem('transactionHistory') || '[]');
+                const premiumTransactions = transactions.filter(t => t.type === 'premium');
 
-        function closeWithdrawDetails() {
-            document.getElementById('withdrawDetails').style.display = 'none';
-            xoverla();
-        }
+                if (premiumTransactions.length === 0) {
+                    alert('No Premium Fee transactions found.');
+                    return;
+                }
 
-        function closeTransferDetails() {
-            document.getElementById('transferDetails').style.display = 'none';
-            xoverla();
-        }
+                const detailsList = document.getElementById('premiumDetailsList');
+                detailsList.innerHTML = premiumTransactions.map(t => `
+                    <div class="transaction-detail-item">
+                        <div class="detail-header">
+                            <i class="fa-solid fa-coins" style="color: #ffc107;"></i>
+                            <span class="amount">-FCFA ${t.amount.toLocaleString()}</span>
+                        </div>
+                        <div class="detail-info">
+                            <p><strong>Date:</strong> ${new Date(t.date).toLocaleDateString()} at ${new Date(t.date).toLocaleTimeString()}</p>
+                            <p><strong>Reason:</strong> ${t.reason || 'N/A'}</p>
+                            <p><strong>Transaction ID:</strong> ${t.id.toString().slice(-6)}</p>
+                        </div>
+                    </div>
+                `).join('');
 
-        function closePremiumDetails() {
-            document.getElementById('premiumDetails').style.display = 'none';
-            xoverla();
-        }
+                overla();
+                showPremiumDetailsModal();
+            }
 
-        // Event listeners for close buttons
-        document.getElementById('closeTopUpDetails').addEventListener('click', closeTopUpDetails);
-        document.getElementById('closeWithdrawDetails').addEventListener('click', closeWithdrawDetails);
-        document.getElementById('closeTransferDetails').addEventListener('click', closeTransferDetails);
-        document.getElementById('closePremiumDetails').addEventListener('click', closePremiumDetails);
+            // Modal display functions
+            function showTopUpDetailsModal() {
+                setTimeout(() => {
+                    document.getElementById('topUpDetails').style.display = 'block';
+                }, 1000);
+            }
+
+            function showWithdrawDetailsModal() {
+                setTimeout(() => {
+                    document.getElementById('withdrawDetails').style.display = 'block';
+                }, 1000);
+            }
+
+            function showTransferDetailsModal() {
+                setTimeout(() => {
+                    document.getElementById('transferDetails').style.display = 'block';
+                }, 1000);
+            }
+
+            function showPremiumDetailsModal() {
+                setTimeout(() => {
+                    document.getElementById('premiumDetails').style.display = 'block';
+                }, 1000);
+            }
+
+            // Close modal functions
+            function closeTopUpDetails() {
+                document.getElementById('topUpDetails').style.display = 'none';
+                xoverla();
+            }
+
+            function closeWithdrawDetails() {
+                document.getElementById('withdrawDetails').style.display = 'none';
+                xoverla();
+            }
+
+            function closeTransferDetails() {
+                document.getElementById('transferDetails').style.display = 'none';
+                xoverla();
+            }
+
+            function closePremiumDetails() {
+                document.getElementById('premiumDetails').style.display = 'none';
+                xoverla();
+            }
+
+            document.getElementById('closeTopUpDetails').addEventListener('click', closeTopUpDetails);
+            document.getElementById('closeWithdrawDetails').addEventListener('click', closeWithdrawDetails);
+            document.getElementById('closeTransferDetails').addEventListener('click', closeTransferDetails);
+            document.getElementById('closePremiumDetails').addEventListener('click', closePremiumDetails);
+        });
     </script>
 </body>
 </html>

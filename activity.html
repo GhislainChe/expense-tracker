@@ -23,7 +23,7 @@
                     </div>
                     <i class="fa-solid fa-bars" id="menu"></i>
                     <i class="fa-solid fa-bell"></i>
-                    <i class="fa-solid fa-circle-user"></i>
+                    <i class="fa-solid fa-circle-user" id="userMenu"></i>
                     
                 </div>
             </nav>
@@ -126,6 +126,99 @@
     </footer>
 
     <script>
+        // Authentication check
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem('userLoggedIn');
+            if (!isLoggedIn) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // Check authentication on page load
+        if (!checkAuth()) {
+            // Redirect will happen in checkAuth function
+            return;
+        }
+
+        // Update user name from stored data
+        function updateUserName() {
+            const userData = localStorage.getItem('userData');
+            if (userData) {
+                const user = JSON.parse(userData);
+                const nameElement = document.getElementById('name');
+                nameElement.textContent = `Hey ${user.firstName}`;
+            }
+        }
+
+        // User menu functionality
+        function createUserMenu() {
+            const userMenu = document.getElementById('userMenu');
+            userMenu.addEventListener('click', function() {
+                const userData = localStorage.getItem('userData');
+                const user = userData ? JSON.parse(userData) : null;
+                
+                const menuItems = [
+                    { text: user ? `${user.firstName} ${user.lastName}` : 'User', icon: 'fa-user', action: null },
+                    { text: user ? user.email : 'user@example.com', icon: 'fa-envelope', action: null },
+                    { text: 'Settings', icon: 'fa-cog', action: () => alert('Settings coming soon!') },
+                    { text: 'Help', icon: 'fa-question-circle', action: () => alert('Help coming soon!') },
+                    { text: 'Logout', icon: 'fa-sign-out-alt', action: logout }
+                ];
+                
+                showUserMenu(menuItems);
+            });
+        }
+
+        function showUserMenu(items) {
+            // Remove existing menu
+            const existingMenu = document.querySelector('.user-dropdown');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+            
+            // Create menu
+            const menu = document.createElement('div');
+            menu.className = 'user-dropdown';
+            menu.innerHTML = items.map(item => `
+                <div class="menu-item ${item.action ? 'clickable' : ''}" ${item.action ? `onclick="${item.action.name}()"` : ''}>
+                    <i class="fa-solid ${item.icon}"></i>
+                    <span>${item.text}</span>
+                </div>
+            `).join('');
+            
+            // Position menu
+            const userMenu = document.getElementById('userMenu');
+            const rect = userMenu.getBoundingClientRect();
+            menu.style.position = 'absolute';
+            menu.style.top = `${rect.bottom + 10}px`;
+            menu.style.right = '20px';
+            menu.style.zIndex = '1000';
+            
+            document.body.appendChild(menu);
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function closeMenu(e) {
+                if (!menu.contains(e.target) && e.target !== userMenu) {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('userLoggedIn');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('rememberMe');
+            // Note: We keep userData for demo purposes
+            window.location.href = 'login.html';
+        }
+
+        // Initialize user functionality
+        updateUserName();
+        createUserMenu();
+
         // Mobile menu functionality
         let overlay = document.getElementById('overlay')
         let menu = document.getElementById('menu')
