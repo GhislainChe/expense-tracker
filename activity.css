@@ -17,10 +17,10 @@ body{
 
 .container{
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    /* padding: 10px; */
+    padding: 10px;
 }
 
 .navbar{
@@ -31,7 +31,6 @@ body{
     justify-content: center;
     max-width: 1200px;
     margin: 0 auto;
-    /* background-color: red; */
 }
 
 .navbar nav{
@@ -99,6 +98,7 @@ body{
     left: 0;
     height: 2px;
 }
+
 .navbar nav .right ul li::after{
     content: '';
     background-color: rgb(0, 44, 241);
@@ -109,6 +109,7 @@ body{
     height: 2px;
     transition: all 0.3s ease-in-out;
 }
+
 .navbar nav .right ul li:hover::after{
     content: '';
     background-color: rgb(0, 44, 241);
@@ -117,4 +118,362 @@ body{
     bottom: 0px;
     left: 0;
     height: 2px;
+}
+
+/* Activity Header */
+.activity-header{
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: linear-gradient(135deg, rgb(0, 44, 241), rgb(73, 25, 204));
+    border-radius: 15px;
+    color: white;
+}
+
+.header-content h1{
+    font-size: 2em;
+    font-family: "Winky Rough", sans-serif;
+    margin-bottom: 10px;
+}
+
+.header-content p{
+    font-size: 1.1em;
+    font-family: "Lato", sans-serif;
+    opacity: 0.9;
+}
+
+.activity-stats{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    gap: 20px;
+}
+
+.stat-card{
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.stat-card i{
+    font-size: 2em;
+    color: #fff;
+}
+
+.stat-info h3{
+    font-size: 0.9em;
+    font-family: "Quicksand", sans-serif;
+    margin-bottom: 5px;
+    opacity: 0.9;
+}
+
+.stat-info span{
+    font-size: 1.3em;
+    font-weight: 700;
+    font-family: "Lato", sans-serif;
+}
+
+/* Filters Section */
+.filters-section{
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.filter-controls{
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-group{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.filter-group label{
+    font-size: 0.9em;
+    font-weight: 600;
+    font-family: "Quicksand", sans-serif;
+    color: #333;
+}
+
+.filter-group select{
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: "Lato", sans-serif;
+    background: white;
+    min-width: 150px;
+}
+
+.clear-filters-btn{
+    padding: 10px 20px;
+    background: rgb(0, 44, 241);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-family: "Quicksand", sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.clear-filters-btn:hover{
+    background: rgb(0, 35, 193);
+    transform: scale(1.05);
+}
+
+/* Transactions Section */
+.transactions-section, .scheduled-section{
+    width: 100%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.section-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.section-header h2{
+    font-size: 1.5em;
+    font-family: "Winky Rough", sans-serif;
+    color: #333;
+}
+
+.transaction-count{
+    font-size: 0.9em;
+    font-family: "Lato", sans-serif;
+    color: #666;
+}
+
+.transaction-count span{
+    font-weight: 700;
+    color: rgb(0, 44, 241);
+}
+
+/* Transaction Items */
+.transactions-list, .scheduled-list{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.transaction-item, .scheduled-item{
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+}
+
+.transaction-item:hover, .scheduled-item:hover{
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-item.topup{
+    border-left-color: #28a745;
+}
+
+.transaction-item.withdraw, .transaction-item.send{
+    border-left-color: #dc3545;
+}
+
+.scheduled-item{
+    border-left-color: #ffc107;
+}
+
+.transaction-icon, .scheduled-icon{
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-icon i, .scheduled-icon i{
+    font-size: 1.2em;
+}
+
+.transaction-details, .scheduled-details{
+    flex: 1;
+}
+
+.transaction-details h3, .scheduled-details h3{
+    font-size: 1.1em;
+    font-weight: 700;
+    font-family: "Quicksand", sans-serif;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.transaction-details p, .scheduled-details p{
+    font-size: 0.9em;
+    font-family: "Lato", sans-serif;
+    color: #666;
+    margin-bottom: 3px;
+}
+
+.transaction-amount, .scheduled-amount{
+    font-size: 1.2em;
+    font-weight: 700;
+    font-family: "Lato", sans-serif;
+}
+
+.transaction-amount.green, .scheduled-amount.green{
+    color: #28a745;
+}
+
+.transaction-amount.red, .scheduled-amount.red{
+    color: #dc3545;
+}
+
+.scheduled-amount.orange{
+    color: #ffc107;
+}
+
+/* No scheduled transactions */
+.no-scheduled, .no-transactions{
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.no-scheduled i, .no-transactions i{
+    font-size: 3em;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.no-scheduled p, .no-transactions p{
+    font-size: 1.1em;
+    font-family: "Lato", sans-serif;
+}
+
+/* Footer */
+footer{
+    width: 100%;
+    background-color: rgb(73, 25, 204);
+    margin-top: auto;
+}
+
+footer .foot{
+    width: 100%;
+    max-width: 1200px;
+    padding: 15px;
+    margin: 0 auto;
+}
+
+footer .foot h1{
+    font-size: clamp(12px, 2vw, 1em);
+    color: #fff;
+    font-family: "quicksand", sans-serif;
+    text-align: center;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .activity-stats{
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .stat-card{
+        padding: 15px;
+    }
+    
+    .filters-section{
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-controls{
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .filter-group select{
+        min-width: 100%;
+    }
+    
+    .section-header{
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .transaction-item, .scheduled-item{
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .transaction-icon, .scheduled-icon{
+        margin-right: 0;
+    }
+    
+    .transaction-amount, .scheduled-amount{
+        font-size: 1.1em;
+    }
+}
+
+@media (max-width: 480px) {
+    .activity-header{
+        padding: 15px;
+    }
+    
+    .header-content h1{
+        font-size: 1.5em;
+    }
+    
+    .header-content p{
+        font-size: 1em;
+    }
+    
+    .stat-card{
+        padding: 12px;
+    }
+    
+    .stat-card i{
+        font-size: 1.5em;
+    }
+    
+    .stat-info span{
+        font-size: 1.1em;
+    }
 }

@@ -367,6 +367,19 @@
             localStorage.setItem('expenseTrackerData', JSON.stringify(data))
         }
 
+        // Save transaction to history
+        function saveTransactionToHistory(transaction) {
+            let transactionHistory = []
+            const savedHistory = localStorage.getItem('transactionHistory')
+            
+            if (savedHistory) {
+                transactionHistory = JSON.parse(savedHistory)
+            }
+            
+            transactionHistory.push(transaction)
+            localStorage.setItem('transactionHistory', JSON.stringify(transactionHistory))
+        }
+
         // Update UI with current data
         function updateUI() {
             document.getElementById('totalIncome').textContent = `FCFA${tot}.00`
@@ -385,6 +398,21 @@
             if(!isNaN(values) && values >= 1000){
                 tot += values
                 document.getElementById('depositAmount').value = ''
+                
+                // Save individual transaction to history
+                const transaction = {
+                    id: Date.now(),
+                    type: 'topup',
+                    amount: values,
+                    date: new Date(),
+                    description: 'Top Up',
+                    reason: 'Card deposit',
+                    method: 'Card payment',
+                    icon: 'fa-solid fa-money-bill-trend-up',
+                    color: 'green'
+                }
+                saveTransactionToHistory(transaction)
+                
                 updateUI()
                 saveToLocalStorage()
                 console.log('Top up successful')
@@ -413,6 +441,21 @@
                 document.getElementById('withdrawAmount').value = ''
                 document.getElementById('withdrawMethod').value = ''
                 document.getElementById('withdrawReason').value = ''
+                
+                // Save individual transaction to history
+                const transaction = {
+                    id: Date.now(),
+                    type: 'withdraw',
+                    amount: values,
+                    date: new Date(),
+                    description: 'Withdrawal',
+                    reason: withdrawReason,
+                    method: withdrawMethod,
+                    icon: 'fa-solid fa-arrow-up-from-bracket',
+                    color: 'red'
+                }
+                saveTransactionToHistory(transaction)
+                
                 updateUI()
                 saveToLocalStorage()
                 console.log('Withdraw successful')
@@ -447,12 +490,33 @@
         function sendMoney(){
             const sendAmount = document.getElementById('sendAmount').value   
             const sendReason = document.getElementById('sendReason').value
+            const senderName = document.getElementById('senderName').value
+            const recipientName = document.getElementById('recipientName').value
+            const recipientPhone = document.getElementById('recipientPhone').value
             let values = parseInt(sendAmount)
             
             if(!isNaN(values) && values >= 1000 && values <= (tot - withdrawTotal - transferTotal) && sendReason){
                 transferTotal += values
                 document.getElementById('sendAmount').value = ''
                 document.getElementById('sendReason').value = ''
+                
+                // Save individual transaction to history
+                const transaction = {
+                    id: Date.now(),
+                    type: 'send',
+                    amount: values,
+                    date: new Date(),
+                    description: 'Money Transfer',
+                    reason: sendReason,
+                    method: 'Mobile transfer',
+                    senderName: senderName,
+                    recipientName: recipientName,
+                    recipientPhone: recipientPhone,
+                    icon: 'fa-solid fa-money-bill-transfer',
+                    color: 'red'
+                }
+                saveTransactionToHistory(transaction)
+                
                 updateUI()
                 saveToLocalStorage()
                 console.log('Send money successful')

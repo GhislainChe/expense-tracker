@@ -9,7 +9,6 @@
 </head>
 <body>
     <div class="container">
-        <div class="container">
         <div class="navbar">
             <nav>
                 <h1 id="name">Hey Ghislain</h1>
@@ -26,6 +25,373 @@
                 </div>
             </nav>
         </div>
+
+        <div class="activity-header">
+            <div class="header-content">
+                <h1>Transaction Activity</h1>
+                <p>Track all your financial activities and transactions</p>
+            </div>
+            <div class="activity-stats">
+                <div class="stat-card">
+                    <i class="fa-solid fa-money-bill-trend-up"></i>
+                    <div class="stat-info">
+                        <h3>Total Income</h3>
+                        <span id="totalIncomeActivity">FCFA 0.00</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                    <div class="stat-info">
+                        <h3>Total Spent</h3>
+                        <span id="totalSpentActivity">FCFA 0.00</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fa-solid fa-wallet"></i>
+                    <div class="stat-info">
+                        <h3>Current Balance</h3>
+                        <span id="currentBalanceActivity">FCFA 0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters-section">
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label for="transactionType">Transaction Type:</label>
+                    <select id="transactionType">
+                        <option value="all">All Transactions</option>
+                        <option value="topup">Top Up</option>
+                        <option value="withdraw">Withdraw</option>
+                        <option value="send">Send Money</option>
+                        <option value="scheduled">Scheduled</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="dateRange">Date Range:</label>
+                    <select id="dateRange">
+                        <option value="all">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="amountRange">Amount Range:</label>
+                    <select id="amountRange">
+                        <option value="all">All Amounts</option>
+                        <option value="small">Under 5,000 FCFA</option>
+                        <option value="medium">5,000 - 20,000 FCFA</option>
+                        <option value="large">Over 20,000 FCFA</option>
+                    </select>
+                </div>
+            </div>
+            <button id="clearFilters" class="clear-filters-btn">
+                <i class="fa-solid fa-filter-circle-xmark"></i>
+                Clear Filters
+            </button>
+        </div>
+
+        <div class="transactions-section">
+            <div class="section-header">
+                <h2>Recent Transactions</h2>
+                <div class="transaction-count">
+                    <span id="transactionCount">0</span> transactions found
+                </div>
+            </div>
+            <div class="transactions-list" id="transactionsList">
+                <!-- Transactions will be loaded here dynamically -->
+            </div>
+        </div>
+
+        <div class="scheduled-section">
+            <div class="section-header">
+                <h2>Upcoming Scheduled Transactions</h2>
+            </div>
+            <div class="scheduled-list" id="scheduledList">
+                <!-- Scheduled transactions will be loaded here -->
+            </div>
+        </div>
     </div>
+
+    <footer>
+        <div class="foot">
+            <h1>&copy; 2025 Ghislain Expense Tracker . All Rights Reserved</h1>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables for transaction tracking
+        let allTransactions = []
+        let filteredTransactions = []
+        let scheduledTransactions = []
+
+        // Load data from localStorage
+        function loadActivityData() {
+            const savedData = localStorage.getItem('expenseTrackerData')
+            if (savedData) {
+                const data = JSON.parse(savedData)
+                updateActivityStats(data)
+                loadTransactionHistory(data)
+                displayScheduledTransactions(data.scheduledTransactions || [])
+            }
+        }
+
+        // Load transaction history from localStorage or create from summary data
+        function loadTransactionHistory(data) {
+            // Try to load detailed transaction history
+            const savedTransactions = localStorage.getItem('transactionHistory')
+            if (savedTransactions) {
+                allTransactions = JSON.parse(savedTransactions)
+            } else {
+                // Create transaction history from summary data (for backward compatibility)
+                allTransactions = createTransactionHistoryFromSummary(data)
+            }
+            
+            filteredTransactions = [...allTransactions]
+            displayTransactions(filteredTransactions)
+        }
+
+        // Create transaction history from summary data (for existing users)
+        function createTransactionHistoryFromSummary(data) {
+            const transactions = []
+            const tot = data.tot || 0
+            const withdrawTotal = data.withdrawTotal || 0
+            const transferTotal = data.transferTotal || 0
+
+            if (tot > 0) {
+                transactions.push({
+                    id: Date.now() + 1,
+                    type: 'topup',
+                    amount: tot,
+                    date: new Date(),
+                    description: 'Top Up',
+                    reason: 'Card deposit',
+                    method: 'Card payment',
+                    icon: 'fa-solid fa-money-bill-trend-up',
+                    color: 'green'
+                })
+            }
+
+            if (withdrawTotal > 0) {
+                transactions.push({
+                    id: Date.now() + 2,
+                    type: 'withdraw',
+                    amount: withdrawTotal,
+                    date: new Date(),
+                    description: 'Withdrawal',
+                    reason: 'Cash withdrawal',
+                    method: 'Mobile Money',
+                    icon: 'fa-solid fa-arrow-up-from-bracket',
+                    color: 'red'
+                })
+            }
+
+            if (transferTotal > 0) {
+                transactions.push({
+                    id: Date.now() + 3,
+                    type: 'send',
+                    amount: transferTotal,
+                    date: new Date(),
+                    description: 'Money Transfer',
+                    reason: 'Send money',
+                    method: 'Mobile transfer',
+                    recipientName: 'Recipient',
+                    recipientPhone: 'N/A',
+                    icon: 'fa-solid fa-money-bill-transfer',
+                    color: 'red'
+                })
+            }
+
+            return transactions
+        }
+
+        // Update activity statistics
+        function updateActivityStats(data) {
+            const tot = data.tot || 0
+            const withdrawTotal = data.withdrawTotal || 0
+            const transferTotal = data.transferTotal || 0
+            const totalSpent = withdrawTotal + transferTotal
+            const currentBalance = tot - totalSpent
+
+            document.getElementById('totalIncomeActivity').textContent = `FCFA ${tot.toLocaleString()}.00`
+            document.getElementById('totalSpentActivity').textContent = `FCFA ${totalSpent.toLocaleString()}.00`
+            document.getElementById('currentBalanceActivity').textContent = `FCFA ${currentBalance.toLocaleString()}.00`
+        }
+
+        // Display transactions with filtering
+        function displayTransactions(transactions) {
+            const transactionsList = document.getElementById('transactionsList')
+            
+            if (transactions.length === 0) {
+                transactionsList.innerHTML = `
+                    <div class="no-transactions">
+                        <i class="fa-solid fa-receipt"></i>
+                        <p>No transactions found</p>
+                    </div>
+                `
+                document.getElementById('transactionCount').textContent = '0'
+                return
+            }
+
+            // Sort transactions by date (newest first)
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date))
+
+            // Display transactions
+            transactionsList.innerHTML = transactions.map(transaction => `
+                <div class="transaction-item ${transaction.type}">
+                    <div class="transaction-icon">
+                        <i class="${transaction.icon}" style="color: ${transaction.color}"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <h3>${transaction.description}</h3>
+                        <p>${new Date(transaction.date).toLocaleDateString()} • ${new Date(transaction.date).toLocaleTimeString()}</p>
+                        <p><strong>Reason:</strong> ${transaction.reason}</p>
+                        ${transaction.method ? `<p><strong>Method:</strong> ${transaction.method}</p>` : ''}
+                        ${transaction.recipientName ? `<p><strong>To:</strong> ${transaction.recipientName} (${transaction.recipientPhone})</p>` : ''}
+                    </div>
+                    <div class="transaction-amount ${transaction.color}">
+                        ${transaction.color === 'green' ? '+' : '-'}FCFA ${transaction.amount.toLocaleString()}.00
+                    </div>
+                </div>
+            `).join('')
+
+            document.getElementById('transactionCount').textContent = transactions.length
+        }
+
+        // Filter transactions
+        function filterTransactions() {
+            const typeFilter = document.getElementById('transactionType').value
+            const dateFilter = document.getElementById('dateRange').value
+            const amountFilter = document.getElementById('amountRange').value
+
+            filteredTransactions = allTransactions.filter(transaction => {
+                // Type filter
+                if (typeFilter !== 'all' && transaction.type !== typeFilter) {
+                    return false
+                }
+
+                // Date filter
+                if (dateFilter !== 'all') {
+                    const transactionDate = new Date(transaction.date)
+                    const now = new Date()
+                    
+                    switch (dateFilter) {
+                        case 'today':
+                            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+                            const transactionDay = new Date(transactionDate.getFullYear(), transactionDate.getMonth(), transactionDate.getDate())
+                            if (transactionDay.getTime() !== today.getTime()) return false
+                            break
+                        case 'week':
+                            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+                            if (transactionDate < weekAgo) return false
+                            break
+                        case 'month':
+                            const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
+                            if (transactionDate < monthAgo) return false
+                            break
+                        case 'year':
+                            const yearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate())
+                            if (transactionDate < yearAgo) return false
+                            break
+                    }
+                }
+
+                // Amount filter
+                if (amountFilter !== 'all') {
+                    switch (amountFilter) {
+                        case 'small':
+                            if (transaction.amount >= 5000) return false
+                            break
+                        case 'medium':
+                            if (transaction.amount < 5000 || transaction.amount > 20000) return false
+                            break
+                        case 'large':
+                            if (transaction.amount <= 20000) return false
+                            break
+                    }
+                }
+
+                return true
+            })
+
+            displayTransactions(filteredTransactions)
+        }
+
+        // Display scheduled transactions
+        function displayScheduledTransactions(scheduledTransactions) {
+            const scheduledList = document.getElementById('scheduledList')
+            
+            if (scheduledTransactions.length === 0) {
+                scheduledList.innerHTML = `
+                    <div class="no-scheduled">
+                        <i class="fa-solid fa-calendar-xmark"></i>
+                        <p>No scheduled transactions</p>
+                    </div>
+                `
+                return
+            }
+
+            // Filter future scheduled transactions
+            const now = new Date()
+            const futureTransactions = scheduledTransactions.filter(transaction => 
+                new Date(transaction.dateTime) > now
+            )
+
+            if (futureTransactions.length === 0) {
+                scheduledList.innerHTML = `
+                    <div class="no-scheduled">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <p>No upcoming scheduled transactions</p>
+                    </div>
+                `
+                return
+            }
+
+            // Sort by scheduled date
+            futureTransactions.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime))
+
+            scheduledList.innerHTML = futureTransactions.map(transaction => {
+                const scheduledDate = new Date(transaction.dateTime)
+                const icon = transaction.type === 'withdraw' ? 'fa-solid fa-arrow-up-from-bracket' : 'fa-solid fa-money-bill-transfer'
+                const color = 'orange'
+                
+                return `
+                    <div class="scheduled-item">
+                        <div class="scheduled-icon">
+                            <i class="${icon}" style="color: ${color}"></i>
+                        </div>
+                        <div class="scheduled-details">
+                            <h3>${transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)} - ${transaction.reason}</h3>
+                            <p>Scheduled for: ${scheduledDate.toLocaleDateString()} at ${scheduledDate.toLocaleTimeString()}</p>
+                            ${transaction.method ? `<p>Method: ${transaction.method}</p>` : ''}
+                            ${transaction.recipientName ? `<p>To: ${transaction.recipientName}</p>` : ''}
+                        </div>
+                        <div class="scheduled-amount ${color}">
+                            -FCFA ${transaction.amount.toLocaleString()}.00
+                        </div>
+                    </div>
+                `
+            }).join('')
+        }
+
+        // Filter event listeners
+        document.getElementById('transactionType').addEventListener('change', filterTransactions)
+        document.getElementById('dateRange').addEventListener('change', filterTransactions)
+        document.getElementById('amountRange').addEventListener('change', filterTransactions)
+
+        document.getElementById('clearFilters').addEventListener('click', function() {
+            document.getElementById('transactionType').value = 'all'
+            document.getElementById('dateRange').value = 'all'
+            document.getElementById('amountRange').value = 'all'
+            filteredTransactions = [...allTransactions]
+            displayTransactions(filteredTransactions)
+        })
+
+        // Load data when page loads
+        loadActivityData()
+    </script>
 </body>
 </html>
