@@ -3,34 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | Ghislain Expense Tracker</title>
+    <title>Register | Expense Tracker</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://kit.fontawesome.com/95ebfc49eb.js" crossorigin="anonymous"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --border: #e5e7eb;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: var(--text);
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        
+        .auth-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 380px;
+            padding: 1.75rem 1.5rem;
+            margin: 0.5rem 0;
+            box-sizing: border-box;
+        }
+        
+        @media (min-width: 768px) {
+            .auth-card {
+                padding: 2rem 2.5rem;
+                max-width: 400px;
+                margin: 1rem 0;
+            }
+            
+            .auth-container {
+                padding: 1.5rem;
+            }
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 1.25rem;
+        }
+        
+        .auth-header h1 {
+            font-size: 1.375rem;
+            font-weight: 600;
+            margin-bottom: 0.375rem;
+            color: #111827;
+        }
+        
+        .auth-header p {
+            color: var(--text-light);
+            font-size: 0.875rem;
+        }
+        
+        .form-group {
+            margin-bottom: 0.75rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .input-group {
+            position: relative;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 0.5rem 2.5rem 0.5rem 2.25rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.875rem;
+            height: 40px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .input-group i:first-child {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .input-group i:first-child {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1em;
+            pointer-events: none;
+        }
+        
+        .input-group i.toggle-password {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1em;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0 0.75rem;
+            font-size: 0.8125rem;
+            cursor: pointer;
+            line-height: 1.3;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            cursor: pointer;
+        }
+        
+        .terms-link {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .auth-button {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            height: 40px;
+            margin: 0.75rem 0;
+        }
+        
+        .auth-button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        
+        .auth-button:active {
+            transform: translateY(0);
+        }
+        
+        .auth-button:hover {
+            background: var(--primary-hover);
+        }
+        
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 0.75rem 0;
+            color: var(--text-light);
+            font-size: 0.8125rem;
+        }
+        
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+            margin: 0 1rem;
+        }
+        
+        .social-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--text);
+            transition: all 0.2s;
+            height: 40px;
+        }
+        
+        .social-button:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin: 0.75rem 0 0.25rem;
+            color: var(--text-light);
+            font-size: 0.8125rem;
+        }
+        
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
                 <h1>Create Account</h1>
-                <p>Join us to start tracking your expenses</p>
+                <p>Get started with your free account</p>
             </div>
             
-            <form id="registerForm" class="auth-form">
+            <form id="registerForm">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="firstName">First Name</label>
                         <div class="input-group">
-                            <i class="fa-solid fa-user"></i>
-                            <input type="text" id="firstName" placeholder="Enter first name" required>
+                            <input type="text" id="firstName" placeholder="John" required>
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label for="lastName">Last Name</label>
                         <div class="input-group">
-                            <i class="fa-solid fa-user"></i>
-                            <input type="text" id="lastName" placeholder="Enter last name" required>
+                            <input type="text" id="lastName" placeholder="Doe" required>
                         </div>
                     </div>
                 </div>
@@ -38,77 +286,54 @@
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <div class="input-group">
-                        <i class="fa-solid fa-envelope"></i>
-                        <input type="email" id="email" placeholder="Enter your email" required>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="phone">Phone Number</label>
-                    <div class="input-group">
-                        <i class="fa-solid fa-phone"></i>
-                        <input type="tel" id="phone" placeholder="Enter phone number" required>
+                        <input type="email" id="email" placeholder="you@example.com" required>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="input-group">
-                        <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="password" placeholder="Create a password" required>
+                        <input type="password" id="password" placeholder="••••••••" required>
                         <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('password')"></i>
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="confirmPassword">Confirm Password</label>
-                    <div class="input-group">
-                        <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="confirmPassword" placeholder="Confirm your password" required>
-                        <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('confirmPassword')"></i>
-                    </div>
-                </div>
-                
-                <div class="form-options">
-                    <label class="checkbox-container">
-                        <input type="checkbox" id="agreeTerms" required>
-                        <span class="checkmark"></span>
-                        I agree to the <a href="#" class="terms-link">Terms & Conditions</a>
-                    </label>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">I agree to the <a href="#" class="terms-link">Terms & Conditions</a></label>
                 </div>
                 
                 <button type="submit" class="auth-button">
-                    <span>Create Account</span>
-                    <i class="fa-solid fa-arrow-right"></i>
+                    Create Account
                 </button>
             </form>
             
             <div class="auth-divider">
-                <span>or</span>
+                <span>or continue with</span>
             </div>
             
-            <div class="social-login">
-                <button class="social-button google">
-                    <i class="fa-brands fa-google"></i>
-                    <span>Sign up with Google</span>
-                </button>
-                <button class="social-button facebook">
-                    <i class="fa-brands fa-facebook-f"></i>
-                    <span>Sign up with Facebook</span>
-                </button>
-            </div>
+            <button class="social-button google" onclick="signInWithGoogle()">
+                <i class="fab fa-google"></i>
+                <span>Sign up with Google</span>
+            </button>
             
             <div class="auth-footer">
-                <p>Already have an account? <a href="login.html">Sign in</a></p>
+                Already have an account? <a href="login.html">Sign in</a>
             </div>
         </div>
     </div>
 
+    <!-- Add message container for auth messages -->
+    <div id="messageContainer" class="message-container"></div>
+
+    <!-- Include auth utility -->
+    <script src="js/auth.js"></script>
+    
     <script>
         // Toggle password visibility
         function togglePassword(inputId) {
             const passwordInput = document.getElementById(inputId);
-            const toggleIcon = passwordInput.parentNode.querySelector('.toggle-password');
+            const toggleIcon = passwordInput.nextElementSibling;
             
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
@@ -122,120 +347,125 @@
         }
 
         // Handle register form submission
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const agreeTerms = document.getElementById('agreeTerms').checked;
+            const terms = document.getElementById('terms').checked;
             
             // Basic validation
-            if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
-                showMessage('Please fill in all fields', 'error');
+            if (!firstName || !lastName || !email || !password) {
+                Auth.showMessage('Please fill in all fields', 'error', document.querySelector('.auth-card'));
                 return;
             }
             
-            if (!isValidEmail(email)) {
-                showMessage('Please enter a valid email address', 'error');
-                return;
-            }
-            
-            if (!isValidPhone(phone)) {
-                showMessage('Please enter a valid phone number', 'error');
+            if (!Auth.isValidEmail(email)) {
+                Auth.showMessage('Please enter a valid email address', 'error', document.querySelector('.auth-card'));
                 return;
             }
             
             if (password.length < 6) {
-                showMessage('Password must be at least 6 characters long', 'error');
+                Auth.showMessage('Password must be at least 6 characters long', 'error', document.querySelector('.auth-card'));
                 return;
             }
             
-            if (password !== confirmPassword) {
-                showMessage('Passwords do not match', 'error');
+            if (!terms) {
+                Auth.showMessage('Please accept the Terms & Conditions', 'error', document.querySelector('.auth-card'));
                 return;
             }
             
-            if (!agreeTerms) {
-                showMessage('Please agree to the Terms & Conditions', 'error');
-                return;
-            }
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
             
-            // Simulate registration process
-            showMessage('Creating your account...', 'info');
-            
-            // For demo purposes, accept any valid registration
-            setTimeout(() => {
+            try {
+                // In a real app, you would make an API call here
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
                 // Store user data
                 const userData = {
                     firstName: firstName,
                     lastName: lastName,
                     email: email,
-                    phone: phone,
-                    password: password, // In real app, this would be hashed
                     createdAt: new Date().toISOString()
                 };
                 
                 localStorage.setItem('userData', JSON.stringify(userData));
-                localStorage.setItem('userLoggedIn', 'true');
-                localStorage.setItem('userEmail', email);
                 
-                showMessage('Account created successfully! Redirecting...', 'success');
+                // Handle successful registration and login
+                Auth.handleSuccessfulLogin(email, true);
+                Auth.showMessage('Registration successful! Welcome!', 'success', document.querySelector('.auth-card'));
                 
-                // Redirect to main page
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
-            }, 2000);
+            } catch (error) {
+                console.error('Registration error:', error);
+                Auth.showMessage('Registration failed. Please try again.', 'error', document.querySelector('.auth-card'));
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
         });
 
-        // Email validation
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
+        // Google Sign In (functionality removed as per user request)
+        function signInWithGoogle() {
+            Auth.showMessage('Google sign-in is currently not available', 'info', document.querySelector('.auth-card'));
         }
 
-        // Phone validation
-        function isValidPhone(phone) {
-            const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-            return phoneRegex.test(phone.replace(/\s/g, ''));
-        }
-
-        // Show message function
-        function showMessage(message, type) {
-            // Remove existing message
-            const existingMessage = document.querySelector('.auth-message');
-            if (existingMessage) {
-                existingMessage.remove();
+        // Message container styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .message-container {
+                position: fixed;
+                top: 1rem;
+                right: 1rem;
+                z-index: 1000;
+                max-width: 320px;
+                width: 100%;
             }
-            
-            // Create new message
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `auth-message ${type}`;
-            messageDiv.textContent = message;
-            
-            // Insert after header
-            const header = document.querySelector('.auth-header');
-            header.parentNode.insertBefore(messageDiv, header.nextSibling);
-            
-            // Auto remove after 3 seconds
-            setTimeout(() => {
-                if (messageDiv.parentNode) {
-                    messageDiv.remove();
-                }
-            }, 3000);
-        }
+            .message {
+                position: relative;
+                padding: 0.75rem 1rem;
+                margin-bottom: 0.5rem;
+                border-radius: 6px;
+                color: white;
+                font-size: 0.875rem;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                animation: slideIn 0.3s ease-out;
+            }
+            .message-error { background-color: #ef4444; }
+            .message-success { background-color: #10b981; }
+            .message-info { background-color: #3b82f6; }
+            .message-warning { background-color: #f59e0b; }
+            .message-close {
+                position: absolute;
+                right: 0.5rem;
+                top: 0.5rem;
+                background: transparent;
+                border: none;
+                color: white;
+                font-size: 1.25rem;
+                line-height: 1;
+                cursor: pointer;
+                padding: 0 0.5rem;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
 
         // Social registration handlers
         document.querySelector('.google').addEventListener('click', function() {
-            showMessage('Google signup coming soon!', 'info');
+            Auth.showMessage('Google signup coming soon!', 'info', document.querySelector('.auth-card'));
         });
-
+        
         document.querySelector('.facebook').addEventListener('click', function() {
-            showMessage('Facebook signup coming soon!', 'info');
+            Auth.showMessage('Facebook signup coming soon!', 'info', document.querySelector('.auth-card'));
         });
     </script>
 </body>

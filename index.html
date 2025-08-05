@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ghislain | Expense Tracker</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/auth.css">
     <script src="https://kit.fontawesome.com/95ebfc49eb.js" crossorigin="anonymous"></script>
+    <script src="js/auth.js"></script>
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
@@ -26,7 +28,6 @@
                     <i class="fa-solid fa-bars" id="menu"></i>
                     <i class="fa-solid fa-bell"></i>
                     <i class="fa-solid fa-circle-user" id="userMenu"></i>
-                    
                 </div>
             </nav>
         </div>
@@ -321,31 +322,29 @@
             </div>
         </div>
     </div>
+    <script src="js/auth.js"></script>
+    <!-- Include auth utility -->
+    <script src="js/auth.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Authentication check
-            function checkAuth() {
-                const isLoggedIn = localStorage.getItem('userLoggedIn');
-                if (!isLoggedIn) {
-                    window.location.href = 'login.html';
-                    return false;
-                }
-                return true;
-            }
-
             // Check authentication on page load
-            if (!checkAuth()) {
-                // Redirect will happen in checkAuth function
+            if (!Auth.requireAuth()) {
+                // Redirect will happen in requireAuth function
+                return;
+            }
+            // Check authentication on page load
+            if (!Auth.requireAuth()) {
+                // Redirect will happen in requireAuth function
                 return;
             }
 
             // Update user name from stored data
             function updateUserName() {
-                const userData = localStorage.getItem('userData');
-                if (userData) {
-                    const user = JSON.parse(userData);
+                const user = Auth.getCurrentUser();
+                if (user) {
                     const nameElement = document.getElementById('name');
-                    nameElement.textContent = `Hey ${user.firstName}`;
+                    nameElement.textContent = `Hey ${user.firstName || 'User'}`;
                 }
             }
 
@@ -353,15 +352,14 @@
             function createUserMenu() {
                 const userMenu = document.getElementById('userMenu');
                 userMenu.addEventListener('click', function() {
-                    const userData = localStorage.getItem('userData');
-                    const user = userData ? JSON.parse(userData) : null;
+                    const user = Auth.getCurrentUser();
                     
                     const menuItems = [
                         { text: user ? `${user.firstName} ${user.lastName}` : 'User', icon: 'fa-user', action: null },
                         { text: user ? user.email : 'user@example.com', icon: 'fa-envelope', action: null },
                         { text: 'Settings', icon: 'fa-cog', action: () => alert('Settings coming soon!') },
                         { text: 'Help', icon: 'fa-question-circle', action: () => alert('Help coming soon!') },
-                        { text: 'Logout', icon: 'fa-sign-out-alt', action: logout }
+                        { text: 'Logout', icon: 'fa-sign-out-alt', action: Auth.logout }
                     ];
                     
                     showUserMenu(menuItems);
@@ -402,14 +400,6 @@
                         document.removeEventListener('click', closeMenu);
                     }
                 });
-            }
-
-            function logout() {
-                localStorage.removeItem('userLoggedIn');
-                localStorage.removeItem('userEmail');
-                localStorage.removeItem('rememberMe');
-                // Note: We keep userData for demo purposes
-                window.location.href = 'login.html';
             }
 
             // Initialize user functionality
