@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activity | Ghislain</title>
     <link rel="stylesheet" href="activity.css">
+    <link rel="stylesheet" href="css/auth.css">
     <script src="https://kit.fontawesome.com/95ebfc49eb.js" crossorigin="anonymous"></script>
+    <script src="js/auth.js"></script>
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
@@ -126,98 +128,158 @@
     </footer>
 
     <script>
-        // Authentication check
-        function checkAuth() {
-            const isLoggedIn = localStorage.getItem('userLoggedIn');
-            if (!isLoggedIn) {
-                window.location.href = 'login.html';
-                return false;
-            }
-            return true;
-        }
-
         // Check authentication on page load
-        if (!checkAuth()) {
-            // Redirect will happen in checkAuth function
-            return;
-        }
-
-        // Update user name from stored data
-        function updateUserName() {
-            const userData = localStorage.getItem('userData');
-            if (userData) {
-                const user = JSON.parse(userData);
-                const nameElement = document.getElementById('name');
-                nameElement.textContent = `Hey ${user.firstName}`;
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!Auth.requireAuth()) {
+                // Redirect will happen in requireAuth function
+                return;
             }
-        }
 
-        // User menu functionality
-        function createUserMenu() {
-            const userMenu = document.getElementById('userMenu');
-            userMenu.addEventListener('click', function() {
-                const userData = localStorage.getItem('userData');
-                const user = userData ? JSON.parse(userData) : null;
-                
-                const menuItems = [
-                    { text: user ? `${user.firstName} ${user.lastName}` : 'User', icon: 'fa-user', action: null },
-                    { text: user ? user.email : 'user@example.com', icon: 'fa-envelope', action: null },
-                    { text: 'Settings', icon: 'fa-cog', action: () => alert('Settings coming soon!') },
-                    { text: 'Help', icon: 'fa-question-circle', action: () => alert('Help coming soon!') },
-                    { text: 'Logout', icon: 'fa-sign-out-alt', action: logout }
-                ];
-                
-                showUserMenu(menuItems);
-            });
-        }
-
-        function showUserMenu(items) {
-            // Remove existing menu
-            const existingMenu = document.querySelector('.user-dropdown');
-            if (existingMenu) {
-                existingMenu.remove();
-            }
-            
-            // Create menu
-            const menu = document.createElement('div');
-            menu.className = 'user-dropdown';
-            menu.innerHTML = items.map(item => `
-                <div class="menu-item ${item.action ? 'clickable' : ''}" ${item.action ? `onclick="${item.action.name}()"` : ''}>
-                    <i class="fa-solid ${item.icon}"></i>
-                    <span>${item.text}</span>
-                </div>
-            `).join('');
-            
-            // Position menu
-            const userMenu = document.getElementById('userMenu');
-            const rect = userMenu.getBoundingClientRect();
-            menu.style.position = 'absolute';
-            menu.style.top = `${rect.bottom + 10}px`;
-            menu.style.right = '20px';
-            menu.style.zIndex = '1000';
-            
-            document.body.appendChild(menu);
-            
-            // Close menu when clicking outside
-            document.addEventListener('click', function closeMenu(e) {
-                if (!menu.contains(e.target) && e.target !== userMenu) {
-                    menu.remove();
-                    document.removeEventListener('click', closeMenu);
+            // Update user name from stored data
+            function updateUserName() {
+                const user = Auth.getCurrentUser();
+                if (user) {
+                    const nameElement = document.getElementById('name');
+                    nameElement.textContent = `Hey ${user.firstName || 'User'}`;
                 }
-            });
-        }
+            }
 
-        function logout() {
-            localStorage.removeItem('userLoggedIn');
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('rememberMe');
-            // Note: We keep userData for demo purposes
-            window.location.href = 'login.html';
-        }
+            // User menu functionality
+            function createUserMenu() {
+                const userMenu = document.getElementById('userMenu');
+                userMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    const user = Auth.getCurrentUser();
+                    const menuItems = [
+                        { 
+                            text: user ? (user.firstName || 'User') : 'User',
+                            icon: 'fa-user', 
+                            action: null 
+                        },
+                        { 
+                            text: user && user.email ? user.email : 'user@example.com', 
+                            icon: 'fa-envelope', 
+                            action: null 
+                        },
+                        { 
+                            text: 'Settings', 
+                            icon: 'fa-cog', 
+                            action: () => Auth.showMessage('Settings coming soon!', 'info', document.body)
+                        },
+                        { 
+                            text: 'Help', 
+                            icon: 'fa-question-circle', 
+                            action: () => Auth.showMessage('Help coming soon!', 'info', document.body)
+                        },
+                        { 
+                            text: 'Logout', 
+                            icon: 'fa-sign-out-alt', 
+                            action: Auth.logout 
+                        }
+                    ];
+                    
+                    showUserMenu(menuItems);
+                });
+            }
 
-        // Initialize user functionality
-        updateUserName();
-        createUserMenu();
+            function showUserMenu(items) {
+                // Remove existing menu
+                const existingMenu = document.querySelector('.user-dropdown');
+                if (existingMenu) {
+                    existingMenu.remove();
+                    return; // Toggle menu visibility
+                }
+                
+                // Create menu
+                const menu = document.createElement('div');
+                menu.className = 'user-dropdown';
+                
+                // Add menu items
+                menu.innerHTML = items.map(item => {
+                    if (item.action === Auth.logout) {
+                        return `
+                            <div class="menu-item clickable" onclick="event.stopPropagation(); Auth.logout()">
+                                <i class="fa-solid ${item.icon}"></i>
+                                <span>${item.text}</span>
+                            </div>
+                        `;
+                    } else if (item.action) {
+                        return `
+                            <div class="menu-item clickable" onclick="event.stopPropagation(); this.parentNode.parentNode.remove(); ${item.action.toString()}">
+                                <i class="fa-solid ${item.icon}"></i>
+                                <span>${item.text}</span>
+                            </div>
+                        `;
+                    } else {
+                        return `
+                            <div class="menu-item">
+                                <i class="fa-solid ${item.icon}"></i>
+                                <span>${item.text}</span>
+                            </div>
+                        `;
+                    }
+                }).join('');
+                
+                // Position menu
+                const userMenu = document.getElementById('userMenu');
+                const rect = userMenu.getBoundingClientRect();
+                
+                menu.style.position = 'fixed';
+                menu.style.top = `${rect.bottom + window.scrollY}px`;
+                menu.style.right = '20px';
+                menu.style.zIndex = '1000';
+                menu.style.backgroundColor = 'white';
+                menu.style.borderRadius = '8px';
+                menu.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                menu.style.padding = '8px 0';
+                menu.style.minWidth = '200px';
+                menu.style.overflow = 'hidden';
+                
+                // Add styles for menu items
+                const style = document.createElement('style');
+                style.textContent = `
+                    .user-dropdown .menu-item {
+                        padding: 10px 16px;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        cursor: default;
+                        color: #333;
+                        font-size: 14px;
+                    }
+                    .user-dropdown .clickable {
+                        cursor: pointer;
+                    }
+                    .user-dropdown .clickable:hover {
+                        background-color: #f5f5f5;
+                    }
+                    .user-dropdown i {
+                        width: 20px;
+                        text-align: center;
+                    }`;
+                
+                document.head.appendChild(style);
+                document.body.appendChild(menu);
+                
+                // Close menu when clicking outside
+                const closeMenu = (e) => {
+                    if (!menu.contains(e.target) && e.target !== userMenu) {
+                        menu.remove();
+                        document.removeEventListener('click', closeMenu);
+                    }
+                };
+                
+                // Use setTimeout to avoid immediate closure
+                setTimeout(() => {
+                    document.addEventListener('click', closeMenu);
+                }, 0);
+            }
+
+            // Initialize user functionality
+            updateUserName();
+            createUserMenu();
+        });
 
         // Mobile menu functionality
         let overlay = document.getElementById('overlay')
@@ -261,15 +323,23 @@
         let allTransactions = []
         let filteredTransactions = []
         let scheduledTransactions = []
+        let tot = 0
+        let withdrawTotal = 0
+        let transferTotal = 0
 
         // Load data from localStorage
         function loadActivityData() {
             const savedData = localStorage.getItem('expenseTrackerData')
             if (savedData) {
                 const data = JSON.parse(savedData)
+                tot = data.tot || 0
+                withdrawTotal = data.withdrawTotal || 0
+                transferTotal = data.transferTotal || 0
+                scheduledTransactions = data.scheduledTransactions || []
+                
                 updateActivityStats(data)
                 loadTransactionHistory(data)
-                displayScheduledTransactions(data.scheduledTransactions || [])
+                displayScheduledTransactions(scheduledTransactions)
             }
         }
 
@@ -282,10 +352,17 @@
             } else {
                 // Create transaction history from summary data (for backward compatibility)
                 allTransactions = createTransactionHistoryFromSummary(data)
+                // Save the generated history for future use
+                if (allTransactions.length > 0) {
+                    localStorage.setItem('transactionHistory', JSON.stringify(allTransactions))
+                }
             }
             
             filteredTransactions = [...allTransactions]
             displayTransactions(filteredTransactions)
+            
+            // Update stats after loading transactions
+            updateActivityStats()
         }
 
         // Create transaction history from summary data (for existing users)
@@ -343,23 +420,23 @@
         }
 
         // Update activity statistics
-        function updateActivityStats(data) {
-            const tot = data.tot || 0
-            const withdrawTotal = data.withdrawTotal || 0
-            const transferTotal = data.transferTotal || 0
+        function updateActivityStats() {
             const totalSpent = withdrawTotal + transferTotal
             const currentBalance = tot - totalSpent
 
             document.getElementById('totalIncomeActivity').textContent = `FCFA ${tot.toLocaleString()}.00`
             document.getElementById('totalSpentActivity').textContent = `FCFA ${totalSpent.toLocaleString()}.00`
             document.getElementById('currentBalanceActivity').textContent = `FCFA ${currentBalance.toLocaleString()}.00`
+            
+            // Update transaction count
+            document.getElementById('transactionCount').textContent = allTransactions.length
         }
 
         // Display transactions with filtering
         function displayTransactions(transactions) {
             const transactionsList = document.getElementById('transactionsList')
             
-            if (transactions.length === 0) {
+            if (!transactions || transactions.length === 0) {
                 transactionsList.innerHTML = `
                     <div class="no-transactions">
                         <i class="fa-solid fa-receipt"></i>
@@ -370,29 +447,43 @@
                 return
             }
 
+            // Make sure we have valid date objects
+            transactions = transactions.map(t => ({
+                ...t,
+                date: t.date ? new Date(t.date) : new Date()
+            }));
+
             // Sort transactions by date (newest first)
-            transactions.sort((a, b) => new Date(b.date) - new Date(a.date))
+            transactions.sort((a, b) => b.date - a.date);
 
             // Display transactions
-            transactionsList.innerHTML = transactions.map(transaction => `
-                <div class="transaction-item ${transaction.type}">
-                    <div class="transaction-icon">
-                        <i class="${transaction.icon}" style="color: ${transaction.color}"></i>
+            transactionsList.innerHTML = transactions.map(transaction => {
+                const formattedDate = transaction.date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                return `
+                    <div class="transaction-item ${transaction.type}">
+                        <div class="transaction-icon">
+                            <i class="${transaction.icon || 'fa-solid fa-exchange'}" style="color: ${transaction.color || '#666'}"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <h3>${transaction.description || 'Transaction'}</h3>
+                            <p class="transaction-date">${formattedDate}</p>
+                            ${transaction.reason ? `<p><strong>Reason:</strong> ${transaction.reason}</p>` : ''}
+                            ${transaction.method ? `<p><strong>Method:</strong> ${transaction.method}</p>` : ''}
+                            ${transaction.recipientName ? `<p><strong>To:</strong> ${transaction.recipientName} ${transaction.recipientPhone ? `(${transaction.recipientPhone})` : ''}</p>` : ''}
+                        </div>
+                        <div class="transaction-amount ${transaction.color || ''}" style="color: ${transaction.color || (transaction.amount < 0 ? 'red' : 'green')}">
+                            ${transaction.amount >= 0 ? '+' : ''}FCFA ${Math.abs(transaction.amount).toLocaleString()}.00
+                        </div>
                     </div>
-                    <div class="transaction-details">
-                        <h3>${transaction.description}</h3>
-                        <p>${new Date(transaction.date).toLocaleDateString()} • ${new Date(transaction.date).toLocaleTimeString()}</p>
-                        <p><strong>Reason:</strong> ${transaction.reason}</p>
-                        ${transaction.method ? `<p><strong>Method:</strong> ${transaction.method}</p>` : ''}
-                        ${transaction.recipientName ? `<p><strong>To:</strong> ${transaction.recipientName} (${transaction.recipientPhone})</p>` : ''}
-                    </div>
-                    <div class="transaction-amount ${transaction.color}">
-                        ${transaction.color === 'green' ? '+' : '-'}FCFA ${transaction.amount.toLocaleString()}.00
-                    </div>
-                </div>
-            `).join('')
-
-            document.getElementById('transactionCount').textContent = transactions.length
+                `;
+            }).join('')
         }
 
         // Filter transactions

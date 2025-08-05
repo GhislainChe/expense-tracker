@@ -355,7 +355,7 @@
                     const user = Auth.getCurrentUser();
                     
                     const menuItems = [
-                        { text: user ? `${user.firstName} ${user.lastName}` : 'User', icon: 'fa-user', action: null },
+                        { text: user ? (user.firstName || 'User') : 'User', icon: 'fa-user', action: null },
                         { text: user ? user.email : 'user@example.com', icon: 'fa-envelope', action: null },
                         { text: 'Settings', icon: 'fa-cog', action: () => alert('Settings coming soon!') },
                         { text: 'Help', icon: 'fa-question-circle', action: () => alert('Help coming soon!') },
@@ -479,6 +479,7 @@
 
             // Load data from localStorage on page load
             function loadFromLocalStorage() {
+                // Load summary data
                 const savedData = localStorage.getItem('expenseTrackerData')
                 if (savedData) {
                     const data = JSON.parse(savedData)
@@ -489,7 +490,103 @@
                     
                     // Update UI with loaded data
                     updateUI()
+                    
+                    // Load and display recent transactions
+                    loadRecentTransactions()
+                    
+                    // Update scheduled transactions
+                    updateScheduledTransactionsUI()
                 }
+            }
+            
+            // Load and display recent transactions
+            function loadRecentTransactions() {
+                const savedHistory = localStorage.getItem('transactionHistory')
+                if (savedHistory) {
+                    const transactions = JSON.parse(savedHistory)
+                    // Sort by date (newest first) and take the first 5
+                    const recentTransactions = transactions
+                        .sort((a, b) => new Date(b.date) - new Date(a.date))
+                        .slice(0, 5)
+                    
+                    updateRecentTransactionsUI(recentTransactions)
+                }
+            }
+            
+            // Update recent transactions in the UI
+            function updateRecentTransactionsUI(transactions) {
+                const recentTransactionsList = document.getElementById('recentTransactions')
+                
+                if (!transactions || transactions.length === 0) {
+                    recentTransactionsList.innerHTML = `
+                        <div class="no-transactions">
+                            <i class="fa-solid fa-receipt"></i>
+                            <p>No recent transactions</p>
+                        </div>
+                    `
+                    return
+                }
+                
+                recentTransactionsList.innerHTML = transactions.map(transaction => {
+                    const formattedDate = new Date(transaction.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    })
+                    
+                    return `
+                        <div class="recent-transaction">
+                            <div class="transaction-icon" style="background: ${transaction.color === 'green' ? '#e6f7ee' : '#fce8e8'}">
+                                <i class="${transaction.icon || 'fa-solid fa-exchange'}" style="color: ${transaction.color || '#666'}"></i>
+                            </div>
+                            <div class="transaction-info">
+                                <h4>${transaction.description || 'Transaction'}</h4>
+                                <p>${formattedDate} • ${transaction.reason || ''}</p>
+                            </div>
+                            <div class="transaction-amount" style="color: ${transaction.color || (transaction.amount < 0 ? 'red' : 'green')}">
+                                ${transaction.amount >= 0 ? '+' : ''}FCFA ${Math.abs(transaction.amount).toLocaleString()}
+                            </div>
+                        </div>
+                    `
+                }).join('')
+            }
+            
+            // Update scheduled transactions in the UI
+            function updateScheduledTransactionsUI() {
+                const scheduledList = document.getElementById('scheduledTransactions')
+                
+                if (!scheduledTransactions || scheduledTransactions.length === 0) {
+                    scheduledList.innerHTML = `
+                        <div class="no-transactions">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <p>No scheduled transactions</p>
+                        </div>
+                    `
+                    return
+                }
+                
+                scheduledList.innerHTML = scheduledTransactions.map(transaction => {
+                    const formattedDate = new Date(transaction.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    })
+                    
+                    return `
+                        <div class="scheduled-transaction">
+                            <div class="transaction-icon" style="background: #e6f0ff">
+                                <i class="fa-regular fa-clock" style="color: #4a90e2"></i>
+                            </div>
+                            <div class="transaction-info">
+                                <h4>${transaction.description || 'Scheduled Payment'}</h4>
+                                <p>${formattedDate} • ${transaction.recipientName || ''}</p>
+                            </div>
+                            <div class="transaction-amount" style="color: #4a90e2">
+                                -FCFA ${Math.abs(transaction.amount).toLocaleString()}
+                            </div>
+                        </div>
+                    `
+                }).join('')
             }
 
             // Save data to localStorage
@@ -518,12 +615,73 @@
 
             // Update UI with current data
             function updateUI() {
-                document.getElementById('totalIncome').textContent = `FCFA${tot}.00`
-                document.getElementById('balance').textContent = `FCFA${tot - withdrawTotal - transferTotal}.00`
-                document.getElementById('expenses').textContent = `FCFA${withdrawTotal + transferTotal}.00`
-                document.getElementById('topps').textContent = `+${tot}`
-                document.getElementById('withdraws').textContent = `-${withdrawTotal}.0`
-                document.getElementById('transfers').textContent = `-${transferTotal}.0`
+                const totalExpenses = withdrawTotal + transferTotal
+                const currentBalance = tot - totalExpenses
+                
+                // Format numbers with thousand separators
+                const formatCurrency = (amount) => {
+                    return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                }
+                
+                // Update main summary cards
+                document.getElementById('totalIncome').textContent = `FCFA ${formatCurrency(tot)}.00`
+                document.getElementById('balance').textContent = `FCFA ${formatCurrency(currentBalance)}.00`
+                document.getElementById('expenses').textContent = `FCFA ${formatCurrency(totalExpenses)}.00`
+                
+                // Update quick stats
+                document.getElementById('topps').textContent = `+${formatCurrency(tot)}`
+                document.getElementById('withdraws').textContent = `-${formatCurrency(withdrawTotal)}`
+                document.getElementById('transfers').textContent = `-${formatCurrency(transferTotal)}`
+                
+                // Update progress indicators (if any)
+                updateProgressBars()
+                
+                // Update any other UI elements that depend on these values
+                updateDashboardStats()
+            }
+            
+            // Update progress bars for visual indicators
+            function updateProgressBars() {
+                const totalExpenses = withdrawTotal + transferTotal
+                const maxAmount = Math.max(tot, totalExpenses) || 1 // Avoid division by zero
+                
+                const incomeProgress = document.getElementById('incomeProgress')
+                const expenseProgress = document.getElementById('expenseProgress')
+                
+                if (incomeProgress) {
+                    const incomePercentage = (tot / maxAmount) * 100
+                    incomeProgress.style.width = `${Math.min(100, incomePercentage)}%`
+                }
+                
+                if (expenseProgress) {
+                    const expensePercentage = (totalExpenses / maxAmount) * 100
+                    expenseProgress.style.width = `${Math.min(100, expensePercentage)}%`
+                }
+            }
+            
+            // Update additional dashboard statistics
+            function updateDashboardStats() {
+                const totalExpenses = withdrawTotal + transferTotal
+                const currentBalance = tot - totalExpenses
+                
+                // Update any additional stats elements if they exist
+                const statsElements = {
+                    'totalIncomeStat': tot,
+                    'totalExpenseStat': totalExpenses,
+                    'currentBalanceStat': currentBalance,
+                    'savingsRate': tot > 0 ? ((currentBalance / tot) * 100).toFixed(1) + '%' : '0%'
+                }
+                
+                Object.entries(statsElements).forEach(([id, value]) => {
+                    const element = document.getElementById(id)
+                    if (element) {
+                        if (typeof value === 'number') {
+                            element.textContent = `FCFA ${value.toLocaleString()}.00`
+                        } else {
+                            element.textContent = value
+                        }
+                    }
+                })
             }
 
             // Top Up functionality
