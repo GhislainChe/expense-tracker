@@ -67,7 +67,7 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 40px;
+    gap: 20px;
 }
 
 .navbar nav .right ul{
@@ -101,6 +101,10 @@ body{
     font-size: 1.5em;
     color: #000;
     cursor: pointer;
+}
+
+.navbar nav .right i.fa-bars{
+    display: none;
 }
 
 .navbar nav .right ul .active::after{
@@ -421,7 +425,7 @@ footer .foot h1{
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 768px) {
+@media (max-width: 650px) {
     .navbar nav .right .links{
         position: absolute;
         background-color: #ffffff;
