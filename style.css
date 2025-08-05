@@ -437,7 +437,7 @@ body{
     align-items: center;
     cursor: pointer;
     gap: 10px;
-    background-color: rgba(35, 68, 216, 0.938);
+    background-color: rgba(220, 53, 69, 0.938);
     padding: 12px;
     border-radius: 8px;
     transition: all 0.3s ease;
@@ -445,6 +445,7 @@ body{
 
 .all .all-line .details:hover{
     transform: scale(1.03);
+    background-color: rgba(200, 35, 51, 0.938);
 }
 
 .all .all-line .details i{
@@ -452,12 +453,14 @@ body{
     font-size: 1em;
     background-color: #fff;
     border-radius: 50%;
+    color: #dc3545;
 }
 
 .all .all-line .details p{
     font-size: clamp(12px, 2vw, 1em);
     color: #fff;
     font-family: "lato", sans-serif;
+    font-weight: 600;
 }
 
 footer{
@@ -631,6 +634,65 @@ footer .foot h1{
 
 .deposit form button:hover{
     transform: scale(1.03);
+}
+
+/* Transaction Details Styles */
+.details-content {
+    width: 100%;
+    padding: 20px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.details-content h1 {
+    color: rgb(0, 44, 241);
+    font-family: "quicksand", sans-serif;
+    font-size: 1.3em;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.transaction-detail-item {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid;
+}
+
+.transaction-detail-item:nth-child(odd) {
+    background: #ffffff;
+}
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-header i {
+    font-size: 1.2em;
+}
+
+.detail-header .amount {
+    font-size: 1.1em;
+    font-weight: 700;
+    font-family: "Lato", sans-serif;
+}
+
+.detail-info p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    font-family: "Lato", sans-serif;
+    color: #333;
+}
+
+.detail-info strong {
+    color: #000;
+    font-weight: 600;
 }
 
 
