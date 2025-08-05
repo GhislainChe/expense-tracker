@@ -13,6 +13,20 @@ body{
     margin: 0;
     padding: 0;
     background-color: #fcfcfc;
+    position: relative;
+}
+
+.overlay{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    padding: 10px;
+    top: 0;
+    left: 0;
+    background-color: rgba(49, 49, 49, 0.801);
+    backdrop-filter: blur(08px);
+    z-index: 98;
+    display: none;
 }
 
 .container{
@@ -408,6 +422,35 @@ footer .foot h1{
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
+    .navbar nav .right .links{
+        position: absolute;
+        background-color: #ffffff;
+        top: 75px;
+        right: 0;
+        width: 65%;
+        padding: 20px 0;
+        height: 92vh;
+        z-index: 99;
+        border-top-left-radius: 12px;
+        display: none;
+    }
+
+    .navbar nav .right ul{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        list-style: none;
+        gap: 10px;
+    }
+
+    .navbar nav .right i.fa-bars{
+        display: inline-block;
+    }
+
+    .navbar nav .right ul li{
+        font-size: 1.2em;
+    }
+
     .activity-stats{
         flex-direction: column;
         gap: 15px;
